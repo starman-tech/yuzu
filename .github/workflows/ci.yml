@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Dépendances
+        run: sudo apt-get update && sudo apt-get install -y libglib2.0-bin
+      - name: Vérifications
+        run: tools/lint.sh
+      - name: Installateur
+        run: bash -n install.sh && bash -n tools/nested.sh && bash -n tools/build.sh
+      - name: Zip
+        run: tools/build.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sidepanel-zip
+          path: dist/*.zip

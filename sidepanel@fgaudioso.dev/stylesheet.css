@@ -1,0 +1,446 @@
+/* stylesheet.css — composants Side Panel, NÉO-BRUTALISME PIXEL sombre.
+ *
+ *   #1E223D  Space Cadet   base
+ *   #2A2F52  surface des blocs
+ *   #12152A  ombres dures, encre sur orange
+ *   #E6D5B7  Gargoyle Gas  texte, contours
+ *   #B8AA8F  texte secondaire, icônes au repos
+ *   #F54F1B  Orange        accent
+ *
+ * Grammaire : contour 3 px beige, ombre dure 3px 3px 0 (zéro flou), coins
+ * 4 px, texte monospace gras. À l'appui (:active) l'ombre disparaît et le
+ * bouton est translaté de 3 px par Clutter (lib/widgets.js) : le bloc
+ * « s'enfonce » dans son ombre.
+ *
+ * Les transitions entre pseudo-classes sont gérées NATIVEMENT par St via
+ * transition-duration. Tout mouvement est joué par Clutter. */
+
+/* ============================================================ en-tête */
+
+.sp-header-bar {
+    padding: 12px 14px 10px 14px;
+}
+
+.sp-header-name {
+    font-size: 14px;
+    font-weight: bold;
+    color: #E6D5B7;
+    letter-spacing: 2px;
+}
+
+/* règle épaisse sous l'en-tête */
+.sp-header-rule {
+    height: 3px;
+    background-color: #E6D5B7;
+    margin: 0 14px 12px 14px;
+}
+
+/* bouton « + » : carré bordé, ombre dure */
+.sp-hdr-add {
+    border-radius: 4px;
+    border: 3px solid #E6D5B7;
+    background-color: #2A2F52;
+    box-shadow: 3px 3px 0px 0px #12152A;
+    transition-duration: 120ms;
+}
+
+.sp-hdr-add:hover,
+.sp-hdr-add:focus {
+    background-color: #343A63;
+    box-shadow: 3px 3px 0px 0px #F54F1B;
+}
+
+.sp-hdr-add:active {
+    box-shadow: 0px 0px 0px 0px #F54F1B;
+}
+
+.sp-hdr-add.sp-open {
+    background-color: #F54F1B;
+    border-color: #E6D5B7;
+    box-shadow: 3px 3px 0px 0px #E6D5B7;
+}
+
+/* boutons d'action carrés (tasse, crayon, punaise, réglages) */
+.sp-hdr-act {
+    border-radius: 4px;
+    background-color: transparent;
+    border: 3px solid transparent;
+    transition-duration: 120ms;
+}
+
+.sp-hdr-act:hover,
+.sp-hdr-act:focus {
+    background-color: #2A2F52;
+    border-color: #E6D5B7;
+    box-shadow: 3px 3px 0px 0px #12152A;
+}
+
+.sp-hdr-act:active {
+    box-shadow: 0px 0px 0px 0px #12152A;
+}
+
+/* état actif : bloc orange plein, ombre beige */
+.sp-hdr-act.is-pinned,
+.sp-hdr-act.is-pinned:hover,
+.sp-hdr-act.is-pinned:focus {
+    background-color: #F54F1B;
+    border-color: #E6D5B7;
+    box-shadow: 3px 3px 0px 0px #E6D5B7;
+}
+
+.sp-hdr-act.is-pinned:active {
+    box-shadow: 0px 0px 0px 0px #E6D5B7;
+}
+
+/* ============================================================ pastilles */
+
+.sp-pill {
+    border-radius: 4px;
+    background-color: #2A2F52;
+    border: 3px solid #E6D5B7;
+    box-shadow: 3px 3px 0px 0px #12152A;
+    color: #E6D5B7;
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    transition-duration: 120ms;
+}
+
+.sp-pill:hover,
+.sp-pill:focus {
+    background-color: #343A63;
+    box-shadow: 3px 3px 0px 0px #F54F1B;
+}
+
+.sp-pill:active {
+    background-color: #12152A;
+    box-shadow: 0px 0px 0px 0px #F54F1B;
+}
+
+/* pastille d'accent : orange plein, encre nuit */
+.sp-pill-accent {
+    border-radius: 4px;
+    background-color: #F54F1B;
+    border: 3px solid #E6D5B7;
+    box-shadow: 3px 3px 0px 0px #12152A;
+    color: #12152A;
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    transition-duration: 120ms;
+}
+
+.sp-pill-accent:hover,
+.sp-pill-accent:focus {
+    background-color: #FF7A4D;
+    box-shadow: 3px 3px 0px 0px #E6D5B7;
+}
+
+.sp-pill-accent:active {
+    background-color: #C93F12;
+    box-shadow: 0px 0px 0px 0px #E6D5B7;
+}
+
+/* pastille de danger */
+.sp-pill-danger {
+    border-radius: 4px;
+    background-color: #2A2F52;
+    border: 3px solid #FF3B3B;
+    box-shadow: 3px 3px 0px 0px #12152A;
+    color: #FF3B3B;
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: bold;
+    transition-duration: 120ms;
+}
+
+.sp-pill-danger:hover,
+.sp-pill-danger:focus {
+    background-color: #FF3B3B;
+    color: #12152A;
+    box-shadow: 3px 3px 0px 0px #E6D5B7;
+}
+
+.sp-pill-danger:active {
+    box-shadow: 0px 0px 0px 0px #E6D5B7;
+}
+
+/* ligne de liste (sélecteur d'import) : bloc pleine largeur */
+.sp-row {
+    border-radius: 4px;
+    background-color: #1E223D;
+    border: 3px solid #3B4170;
+    color: #E6D5B7;
+    padding: 8px 12px;
+    font-size: 11px;
+    font-weight: bold;
+    transition-duration: 120ms;
+}
+
+.sp-row:hover,
+.sp-row:focus {
+    background-color: #2A2F52;
+    border-color: #E6D5B7;
+    box-shadow: 3px 3px 0px 0px #F54F1B;
+}
+
+.sp-row:active {
+    background-color: #12152A;
+    box-shadow: 0px 0px 0px 0px #F54F1B;
+}
+
+/* ============================================ boutons vectoriels (cartes) */
+
+.sp-vec-btn {
+    background-color: transparent;
+    border: 2px solid transparent;
+    border-radius: 3px;
+    transition-duration: 100ms;
+}
+
+.sp-vec-btn:hover,
+.sp-vec-btn:focus {
+    background-color: #1E223D;
+    border-color: #E6D5B7;
+}
+
+.sp-vec-btn:active {
+    background-color: #12152A;
+}
+
+.sp-vec-btn.sp-vec-on {
+    background-color: #F54F1B;
+    border-color: #E6D5B7;
+}
+
+/* barre d'édition d'une carte de module */
+.sp-editbar {
+    border-radius: 4px;
+}
+
+/* ============================================= tuiles du mode « applis » */
+
+.sp-tile {
+    border-radius: 4px;
+    background-color: transparent;
+    border: none;
+    padding: 10px 2px 8px 2px;
+    transition-duration: 160ms;
+}
+
+/* bloc d'icône : carré bordé, ombre dure ; devient orange au survol */
+.sp-tile-icon {
+    border-radius: 4px;
+    background-color: #2A2F52;
+    border: 3px solid #E6D5B7;
+    box-shadow: 3px 3px 0px 0px #12152A;
+    transition-duration: 120ms;
+}
+
+.sp-tile:hover .sp-tile-icon,
+.sp-tile:focus .sp-tile-icon {
+    background-color: #F54F1B;
+    box-shadow: 3px 3px 0px 0px #E6D5B7;
+}
+
+.sp-tile:active .sp-tile-icon {
+    box-shadow: 0px 0px 0px 0px #E6D5B7;
+}
+
+.sp-tile-label {
+    font-size: 10px;
+    font-weight: bold;
+    color: #B8AA8F;
+}
+
+.sp-tile:hover .sp-tile-label,
+.sp-tile:focus .sp-tile-label {
+    color: #E6D5B7;
+}
+
+/* ============================================================ divers */
+
+.sp-edge {
+    background-color: transparent;
+}
+
+/* barre de défilement : poignée carrée beige */
+StScrollBar {
+    padding: 0px;
+}
+
+StScrollBar StBin#trough {
+    background-color: transparent;
+    border-width: 0px;
+}
+
+StScrollBar StButton#vhandle {
+    background-color: #B8AA8F;
+    border-radius: 0px;
+    border: 0px;
+    margin: 2px;
+    transition-duration: 100ms;
+}
+
+StScrollBar StButton#vhandle:hover,
+StScrollBar StButton#vhandle:active {
+    background-color: #F54F1B;
+}
+
+/* champs de saisie des modules */
+.sp-entry {
+    border-radius: 4px;
+    background-color: #1E223D;
+    border: 3px solid #3B4170;
+    color: #E6D5B7;
+    caret-color: #F54F1B;
+    selection-background-color: rgba(245, 79, 27, 0.45);
+    transition-duration: 120ms;
+}
+
+.sp-entry:hover {
+    border-color: #B8AA8F;
+}
+
+.sp-entry:focus {
+    border-color: #F54F1B;
+    background-color: #12152A;
+}
+
+.sp-entry StLabel.hint-text {
+    color: #8F846F;
+}
+
+/* ================================================ compat (anciens usages) */
+
+.sp-btn {
+    border-radius: 4px;
+    background-color: #2A2F52;
+    border: 3px solid #E6D5B7;
+    color: #E6D5B7;
+    transition-duration: 120ms;
+}
+
+.sp-btn:hover {
+    background-color: #343A63;
+}
+
+.sp-btn-accent,
+.sp-btn.sp-checked {
+    background-color: #F54F1B;
+    color: #12152A;
+}
+
+.sp-btn-flat {
+    background-color: transparent;
+    border-color: transparent;
+}
+
+.sp-pill-solid {
+    border-radius: 4px;
+    background-color: #F54F1B;
+    color: #12152A;
+    transition-duration: 120ms;
+}
+
+.sp-play-square {
+    border-radius: 4px;
+    background-color: #F54F1B;
+    transition-duration: 120ms;
+}
+
+.sp-iconbtn {
+    background-color: transparent;
+    border: none;
+}
+
+/* ================================================ bandeau de réécriture */
+
+.sp-toast {
+    font-family: JetBrains Mono, Ubuntu Mono, DejaVu Sans Mono, monospace;
+    font-size: 12px;
+    font-weight: bold;
+    color: #E6D5B7;
+    background-color: #1E223D;
+    border: 3px solid #E6D5B7;
+    border-radius: 4px;
+    box-shadow: 4px 4px 0px 0px #F54F1B;
+    padding: 8px 14px;
+}
+
+/* ═══ THÈME CLAIR ═══
+ * Mêmes règles que ci-dessus, sous `.sp-light` que le panneau pose sur sa
+ * racine quand le thème actif a `module: 'light'` (lib/theme.js).
+ *   #F3E9D6  surface des blocs      #EADFC8  creux / survol
+ *   #1E223D  texte, contours, ombres dures
+ *   #5A5E78  texte secondaire, icônes au repos */
+.sp-light .sp-header-name { color: #1E223D; }
+
+.sp-light .sp-hdr-add {
+    border-color: #1E223D;
+    background-color: #F3E9D6;
+    box-shadow: 3px 3px 0px 0px #1E223D;
+}
+.sp-light .sp-hdr-add:hover,
+.sp-light .sp-hdr-add:focus { background-color: #EADFC8; box-shadow: 3px 3px 0px 0px #F54F1B; }
+.sp-light .sp-hdr-add.sp-open { background-color: #F54F1B; border-color: #1E223D; box-shadow: 3px 3px 0px 0px #1E223D; }
+
+.sp-light .sp-hdr-act:hover,
+.sp-light .sp-hdr-act:focus {
+    background-color: #F3E9D6;
+    border-color: #1E223D;
+    box-shadow: 3px 3px 0px 0px #1E223D;
+}
+.sp-light .sp-hdr-act:active { box-shadow: 0px 0px 0px 0px #1E223D; }
+.sp-light .sp-hdr-act.is-pinned,
+.sp-light .sp-hdr-act.is-pinned:hover,
+.sp-light .sp-hdr-act.is-pinned:focus { border-color: #1E223D; box-shadow: 3px 3px 0px 0px #1E223D; }
+.sp-light .sp-hdr-act.is-pinned:active { box-shadow: 0px 0px 0px 0px #1E223D; }
+
+.sp-light .sp-pill {
+    background-color: #F3E9D6;
+    border-color: #1E223D;
+    box-shadow: 3px 3px 0px 0px #1E223D;
+    color: #1E223D;
+}
+.sp-light .sp-pill:hover,
+.sp-light .sp-pill:focus { background-color: #EADFC8; box-shadow: 3px 3px 0px 0px #F54F1B; }
+.sp-light .sp-pill:active { background-color: #E0D2B6; }
+.sp-light .sp-pill-accent { border-color: #1E223D; box-shadow: 3px 3px 0px 0px #1E223D; }
+.sp-light .sp-pill-accent:hover,
+.sp-light .sp-pill-accent:focus { box-shadow: 3px 3px 0px 0px #1E223D; }
+.sp-light .sp-pill-danger { background-color: #F3E9D6; box-shadow: 3px 3px 0px 0px #1E223D; }
+.sp-light .sp-pill-danger:hover,
+.sp-light .sp-pill-danger:focus { background-color: #FF3B3B; color: #F3E9D6; box-shadow: 3px 3px 0px 0px #1E223D; }
+
+.sp-light .sp-row { background-color: #EADFC8; border-color: rgba(30, 34, 61, 0.22); color: #1E223D; }
+.sp-light .sp-row:hover,
+.sp-light .sp-row:focus { background-color: #F3E9D6; border-color: #1E223D; }
+.sp-light .sp-row:active { background-color: #E0D2B6; }
+
+.sp-light .sp-vec-btn:hover,
+.sp-light .sp-vec-btn:focus { background-color: #EADFC8; border-color: #1E223D; }
+.sp-light .sp-vec-btn:active { background-color: #E0D2B6; }
+.sp-light .sp-vec-btn.sp-vec-on { border-color: #1E223D; }
+
+.sp-light .sp-tile-icon { background-color: #F3E9D6; border-color: #1E223D; box-shadow: 3px 3px 0px 0px #1E223D; }
+.sp-light .sp-tile:hover .sp-tile-icon,
+.sp-light .sp-tile:focus .sp-tile-icon { background-color: #F54F1B; box-shadow: 3px 3px 0px 0px #1E223D; }
+.sp-light .sp-tile-label { color: #5A5E78; }
+.sp-light .sp-tile:hover .sp-tile-label,
+.sp-light .sp-tile:focus .sp-tile-label { color: #1E223D; }
+
+.sp-light StScrollBar StButton#vhandle { background-color: #5A5E78; }
+
+.sp-light .sp-entry { background-color: #EADFC8; border-color: rgba(30, 34, 61, 0.22); color: #1E223D; }
+.sp-light .sp-entry:hover { border-color: #5A5E78; }
+.sp-light .sp-entry:focus { border-color: #F54F1B; background-color: #F3E9D6; }
+.sp-light .sp-entry StLabel.hint-text { color: #7A7C8E; }
+
+.sp-light .sp-btn { background-color: #F3E9D6; border-color: #1E223D; color: #1E223D; }
+.sp-light .sp-btn:hover { background-color: #EADFC8; }
+.sp-light .sp-btn-accent,
+.sp-light .sp-btn.sp-checked { background-color: #F54F1B; color: #12152A; }
+.sp-light .sp-btn-flat { background-color: transparent; border-color: transparent; }

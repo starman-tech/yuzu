@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="sidepanel">
+  <schema id="org.gnome.shell.extensions.sidepanel" path="/org/gnome/shell/extensions/sidepanel/">
+
+    <key name="theme" type="s">
+      <default>'brutal'</default>
+      <summary>Identifiant du thème (voir lib/theme.js)</summary>
+    </key>
+
+    <key name="backdrop-blur" type="b">
+      <default>false</default>
+      <summary>Flou GPU de l'arrière-plan (instable sur certains pilotes)</summary>
+    </key>
+
+    <key name="bg-shape" type="s">
+      <default>'pixel'</default>
+      <summary>Forme du fond animé : pixel, liquid, orbs, waves, geometric</summary>
+    </key>
+
+    <key name="bg-speed" type="d">
+      <default>0.0</default>
+      <range min="0.0" max="4.0"/>
+      <summary>Vitesse du fond (0 = valeur du thème)</summary>
+    </key>
+
+    <key name="bg-intensity" type="d">
+      <default>-1.0</default>
+      <range min="-1.0" max="1.2"/>
+      <summary>Intensité des couleurs (négatif = valeur du thème)</summary>
+    </key>
+
+    <key name="bg-colors" type="as">
+      <default>[]</default>
+      <summary>Couleurs du fond en hexadécimal (vide = couleurs du thème)</summary>
+    </key>
+
+    <key name="player-width" type="i">
+      <default>240</default>
+      <range min="160" max="640"/>
+      <summary>Largeur de la carte (la hauteur en découle, ratio 480:270)</summary>
+    </key>
+
+    <key name="player-height" type="i">
+      <default>225</default>
+      <range min="180" max="400"/>
+      <summary>Hauteur fixe de la carte du lecteur</summary>
+    </key>
+
+    <key name="card-spacing" type="i">
+      <default>12</default>
+      <range min="0" max="40"/>
+      <summary>Espacement entre les cartes</summary>
+    </key>
+
+    <key name="panel-width" type="i">
+      <default>288</default>
+      <range min="220" max="720"/>
+      <summary>Largeur du panneau</summary>
+    </key>
+
+    <key name="panel-margin" type="i">
+      <default>18</default>
+      <range min="0" max="80"/>
+      <summary>Marge entre le panneau et le bord de l'écran</summary>
+    </key>
+
+    <key name="panel-max-height" type="i">
+      <default>820</default>
+      <range min="320" max="2000"/>
+      <summary>Hauteur maximale du panneau</summary>
+    </key>
+
+    <key name="edge-width" type="i">
+      <default>8</default>
+      <range min="1" max="40"/>
+      <summary>Largeur de la zone de déclenchement</summary>
+    </key>
+
+    <key name="hide-delay" type="i">
+      <default>420</default>
+      <range min="0" max="3000"/>
+      <summary>Délai avant fermeture automatique (ms)</summary>
+    </key>
+
+    <key name="animation-duration" type="i">
+      <default>460</default>
+      <range min="80" max="1400"/>
+      <summary>Durée de l'animation (ms)</summary>
+    </key>
+
+    <key name="bounce" type="b">
+      <default>true</default>
+      <summary>Rebond à l'ouverture</summary>
+    </key>
+
+    <key name="keep-awake" type="b">
+      <default>false</default>
+      <summary>Rester allumé capot fermé</summary>
+      <description>Bloque la mise en veille à la fermeture du capot et par inactivité (verrous logind et gnome-session).</description>
+    </key>
+
+    <key name="show-on-hover" type="b">
+      <default>true</default>
+      <summary>Ouvrir au survol du bord droit</summary>
+    </key>
+
+    <key name="toggle-panel" type="as">
+      <default><![CDATA[['<Super>p']]]></default>
+      <summary>Raccourci d'ouverture/fermeture</summary>
+    </key>
+
+    <key name="preferred-player" type="s">
+      <default>'spotify'</default>
+      <summary>Sous-chaîne du lecteur MPRIS prioritaire</summary>
+    </key>
+
+    <key name="view-mode" type="s">
+      <default>'stack'</default>
+      <summary>Affichage des modules : stack (cartes empilées) ou grid (grille d'icônes)</summary>
+    </key>
+
+    <key name="weather-location" type="s">
+      <default>'Paris'</default>
+      <summary>Ville du module météo (géocodée par Open-Meteo)</summary>
+    </key>
+
+    <key name="ai-api-key" type="s">
+      <default>''</default>
+      <summary>Clé API Groq Cloud (module assistant)</summary>
+    </key>
+
+    <key name="ai-model" type="s">
+      <default>'qwen/qwen3.8-27b'</default>
+      <summary>Modèle Groq du chat (identifiant tel que renvoyé par /v1/models)</summary>
+    </key>
+
+    <key name="ai-terminal" type="s">
+      <default>''</default>
+      <summary>Terminal à ouvrir quand aucun n'est ouvert (vide = détection : kitty, gnome-terminal, ptyxis…)</summary>
+    </key>
+
+    <key name="rewrite-enabled" type="b">
+      <default>false</default>
+      <summary>Active la réécriture de la sélection (envoie le texte sélectionné à Groq)</summary>
+    </key>
+
+    <key name="rewrite-shortcut" type="as">
+      <default><![CDATA[['<Control>m']]]></default>
+      <summary>Raccourci de réécriture intelligente de la sélection (préfixes ~ # > ! ? $ =)</summary>
+    </key>
+
+    <key name="module-order" type="as">
+      <default>['player','tracker','market','todo','sysmon','weather','calendar','launcher']</default>
+      <summary>Modules affichés, dans l'ordre</summary>
+    </key>
+
+    <key name="module-hidden" type="as">
+      <default>[]</default>
+      <summary>Modules rangés dans la bibliothèque</summary>
+    </key>
+
+    <key name="module-paths" type="as">
+      <default>[]</default>
+      <summary>Chemins des scripts de modules importés</summary>
+    </key>
+
+    <key name="catalog-url" type="s">
+      <default>'https://raw.githubusercontent.com/starman-tech/sidepanel-modules/main/catalog.json'</default>
+      <summary>Catalogue de modules communautaires</summary>
+      <description>Fichier JSON listant les modules installables en un clic. Peut pointer vers un fork ou un catalogue privé.</description>
+    </key>
+
+    <key name="prefs-page" type="s">
+      <default>''</default>
+      <summary>Page des préférences à afficher à la prochaine ouverture (usage interne)</summary>
+    </key>
+
+    <key name="setup-done" type="b">
+      <default>false</default>
+      <summary>L'assistant de premier lancement a été vu</summary>
+    </key>
+
+  </schema>
+</schemalist>

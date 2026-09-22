@@ -1,0 +1,77 @@
+{
+  "_comment": "Métadonnées des modules intégrés. Lu par prefs.js et install.sh (ni l'un ni l'autre ne peut importer les modules, qui dépendent de St). L'ordre ici est l'ordre par défaut.",
+  "modules": [
+    {
+      "id": "player",
+      "title": "Lecteur",
+      "description": "Lecteur MPRIS (Spotify, Firefox, VLC…) : pochette, couleur d'accent extraite, sortie audio, favoris.",
+      "default": true,
+      "network": "pochettes des lecteurs"
+    },
+    {
+      "id": "tracker",
+      "title": "Suivi du temps",
+      "description": "Temps passé par application sur la journée, mesuré localement à partir de la fenêtre active.",
+      "default": true
+    },
+    {
+      "id": "market",
+      "title": "Marché & actualités",
+      "description": "BTC, ETH, SPY, S&P 500 en intraday et titres d'actualité associés.",
+      "default": true,
+      "network": "query1.finance.yahoo.com, news.google.com"
+    },
+    {
+      "id": "todo",
+      "title": "Tâches",
+      "description": "Liste de tâches persistante avec animations.",
+      "default": true
+    },
+    {
+      "id": "sysmon",
+      "title": "Système",
+      "description": "CPU, mémoire, disque, charge et uptime, lus dans /proc.",
+      "default": true
+    },
+    {
+      "id": "weather",
+      "title": "Météo",
+      "description": "Conditions actuelles et prévisions sur 5 jours via Open-Meteo (sans clé).",
+      "default": true,
+      "network": "open-meteo.com"
+    },
+    {
+      "id": "calendar",
+      "title": "Calendrier",
+      "description": "Horloge et grille du mois.",
+      "default": true
+    },
+    {
+      "id": "launcher",
+      "title": "Favoris",
+      "description": "Grille des applications favorites du dock GNOME.",
+      "default": true
+    },
+    {
+      "id": "assistant",
+      "title": "Assistant IA",
+      "description": "Chat Groq qui connaît le dossier du terminal actif et propose des commandes à coller.",
+      "default": false,
+      "network": "api.groq.com (+ bing.com en mode web)",
+      "needsKey": "Clé API Groq",
+      "privacy": "Envoie à Groq le dossier courant du terminal au premier plan, la commande en cours et les dernières lignes de l'historique shell. Peut exécuter des commandes de lecture (ls, find, git status…) pour explorer les dossiers."
+    }
+  ],
+  "features": [
+    {
+      "id": "rewrite",
+      "title": "Réécriture de la sélection",
+      "description": "Raccourci global qui corrige, traduit, reformule ou résume le texte sélectionné dans n'importe quelle application.",
+      "setting": "rewrite-enabled",
+      "default": false,
+      "network": "api.groq.com",
+      "needsKey": "Clé API Groq",
+      "privacy": "Le texte sélectionné est envoyé à Groq à chaque utilisation du raccourci."
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+# Artefacts de build
+build/
+dist/
+*.zip
+*.gz
+
+# Outils de dev locaux
+tools/shots/
+.run/
+*.log
+
+# Anciennes versions conservées hors dépôt
+archive/
+
+# Outillage local de l'éditeur
+docs/*.skill
+
+# Système
+.DS_Store
+*~
+*.swp

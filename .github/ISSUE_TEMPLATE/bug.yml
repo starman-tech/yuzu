@@ -1,0 +1,28 @@
+name: Bug
+description: Quelque chose ne marche pas / Something is broken
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: Ce qui se passe / What happens
+      description: Et ce que tu attendais. / And what you expected.
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: "gnome-shell --version, et la version de Side Panel (Préférences ou metadata.json)"
+      placeholder: GNOME Shell 47.2, Side Panel 5.0, Wayland
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Journal / Log
+      description: "journalctl -b -o cat /usr/bin/gnome-shell | grep -i sidepanel"
+      render: text
+  - type: input
+    id: modules
+    attributes:
+      label: Modules du catalogue installés / Catalog modules installed

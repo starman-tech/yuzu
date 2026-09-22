@@ -1,0 +1,32 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: sudo apt-get update && sudo apt-get install -y libglib2.0-bin
+      - name: Version du tag = version de metadata.json
+        run: |
+          meta="v$(python3 -c 'import json; print(json.load(open("sidepanel@fgaudioso.dev/metadata.json"))["version-name"])')"
+          [ "$meta" = "$GITHUB_REF_NAME" ] || { echo "tag $GITHUB_REF_NAME ≠ metadata $meta"; exit 1; }
+      - run: tools/build.sh
+      - name: Notes de version
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          awk -v v="$version" '$0 ~ "^## "v { on=1; next } /^## / { on=0 } on' CHANGELOG.md > notes.md
+          [ -s notes.md ] || echo "Voir CHANGELOG.md" > notes.md
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.zip
+          body_path: notes.md
