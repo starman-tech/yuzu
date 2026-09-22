@@ -84,6 +84,23 @@ The interface is only in French for now. Strings are not yet wrapped in
 `gettext`; that is the first step, and a welcome pull request. The
 `gettext-domain` in `metadata.json` is already `sidepanel@fgaudioso.dev`.
 
+## The extensions.gnome.org edition
+
+`tools/build.sh --ego` builds `dist/ego/sidepanel@starman-tech.github.io.zip`
+from the same source, through `tools/edition.py`:
+
+- lines between `// #if full` and `// #endif` (or `<!-- #if full -->` in the
+  schema) are removed; lines of an `// #else` branch are written commented
+  with `//: ` so the source stays valid, and are uncommented;
+- `modules/assistant.js`, `lib/rewrite.js` and `lib/catalog.js` are dropped;
+- the community modules (`../sidepanel-modules`, or `SIDEPANEL_MODULES=…`) are
+  copied into `modules/community/` and become built-in modules, off by default;
+- long design comments are trimmed, `metadata.json` gets the EGO UUID.
+
+Anything that loads code at run time, spawns processes, simulates input or
+reads the clipboard must stay inside `#if full`. Test the EGO zip with
+`tools/nested.sh --ego` then `tools/smoke.sh`.
+
 ## Releases
 
 1. Bump `version` and `version-name` in `sidepanel@fgaudioso.dev/metadata.json`,

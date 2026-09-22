@@ -15,6 +15,19 @@ installed in one click without restarting the shell.
 The interface is in French for now ([translations welcome](CONTRIBUTING.md#translations)).
 [Lire en français](README.fr.md).
 
+## Two editions
+
+| | extensions.gnome.org | GitHub (this repository) |
+|---|---|---|
+| Install | from the GNOME Extensions app or the website | `install.sh` or the release zip |
+| Modules | built-in + community modules bundled in the extension, enable the ones you want | built-in + install any community module live from the catalog |
+| AI assistant and selection rewrite | — | optional, off by default |
+| UUID | `sidepanel@starman-tech.github.io` | `sidepanel@fgaudioso.dev` |
+
+Install one edition, not both. The extensions.gnome.org edition is built from
+this same source with `tools/build.sh --ego`: code that loads modules at run
+time or runs commands is removed, because the review rules forbid it.
+
 ## Install
 
 ```bash

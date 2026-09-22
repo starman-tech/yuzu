@@ -20,7 +20,8 @@ jobs:
         run: |
           meta="v$(python3 -c 'import json; print(json.load(open("sidepanel@fgaudioso.dev/metadata.json"))["version-name"])')"
           [ "$meta" = "$GITHUB_REF_NAME" ] || { echo "tag $GITHUB_REF_NAME ≠ metadata $meta"; exit 1; }
-      - run: tools/build.sh
+      - run: git clone --depth 1 https://github.com/starman-tech/sidepanel-modules ../sidepanel-modules
+      - run: tools/build.sh && tools/build.sh --ego
       - name: Notes de version
         run: |
           version="${GITHUB_REF_NAME#v}"
@@ -28,5 +29,7 @@ jobs:
           [ -s notes.md ] || echo "Voir CHANGELOG.md" > notes.md
       - uses: softprops/action-gh-release@v2
         with:
-          files: dist/*.zip
+          files: |
+            dist/*.zip
+            dist/ego/*.zip
           body_path: notes.md

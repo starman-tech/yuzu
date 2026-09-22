@@ -13,7 +13,11 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
 import {ModuleCard} from './card.js';
 import {LiquidBackground, applyBackdropBlur} from './glass.js';
+// #if full
 import {ModuleRegistry, userModuleDir} from './registry.js';
+// #else
+//: import {ModuleRegistry} from './registry.js';
+// #endif
 import {
     MODULE, applyModulePalette, cardStyle, getTheme, labelStyle, panelStyle,
 } from './theme.js';
@@ -26,9 +30,8 @@ import {
     cacheDir, clamp, configFile, fetchBytes, newSession, scaleFactor, sourceRemove, timeoutAdd,
 } from './utils.js';
 
-/* API offerte aux modules (ctx.api). Incrémenter à chaque ajout ; ne
- * jamais retirer ni changer une signature : des modules du catalogue en
- * dépendent. Documentée dans docs/MODULES.md. */
+/* API offerte aux modules (ctx.api), documentée dans docs/MODULES.md.
+ * Incrémenter à chaque ajout ; ne jamais retirer ni changer une signature. */
 const MODULE_API = 1;
 
 const STRUCTURAL = ['panel-width', 'panel-margin', 'edge-width', 'module-order',
@@ -97,7 +100,9 @@ export class SidePanel {
         applyModulePalette(this._theme);
 
         this._build();
+        // #if full
         this._loadImportedModules();
+        // #endif
 
         this._settingsId = this._settings.connect('changed', (_s, key) => {
             if (key === 'theme')
@@ -108,8 +113,10 @@ export class SidePanel {
                 this._rebuild();
             else if (key === 'toggle-panel')
                 this._rebindShortcut();
+            // #if full
             else if (key === 'module-paths')
                 this._loadImportedModules({show: true});
+            // #endif
             else if (key === 'keep-awake')
                 this._awakeButton?.spSetActive(this._settings.get_boolean(key), {animate: true});
         });
@@ -491,9 +498,7 @@ export class SidePanel {
         return new St.Icon({icon_name: name || 'application-x-executable-symbolic', icon_size: size});
     }
 
-    /** Les modules activés, dans l'ordre de `module-order`. Les modules
-     * désactivés dans les préférences n'ont rien à faire ici (l'assistant,
-     * opt-in, en particulier) ; les rangés restent dans la bibliothèque. */
+    /** Les modules activés et non rangés, dans l'ordre de `module-order`. */
     _gridDescriptors() {
         const hidden = this._settings.get_strv('module-hidden');
         return this._settings.get_strv('module-order')
@@ -769,6 +774,7 @@ export class SidePanel {
 
     /* -------------------------------------------------------- modules */
 
+    // #if full
     /* Appelé au démarrage puis à chaque changement de `module-paths` — les
      * préférences y écrivent quand on installe un module du catalogue. Seuls
      * les chemins pas encore importés sont chargés. */
@@ -794,6 +800,7 @@ export class SidePanel {
         if (this._stack)
             this._rebuildCards();
     }
+    // #endif
 
     /** Largeur réellement disponible pour une carte, en px LOGIQUES.
      *
@@ -1068,15 +1075,19 @@ export class SidePanel {
     }
 
     _removeModule(id) {
+        // #if full
         const descriptor = this._registry.get(id);
+        // #endif
         this._settings.set_strv('module-order',
             this._settings.get_strv('module-order').filter(x => x !== id));
         this._settings.set_strv('module-hidden',
             this._settings.get_strv('module-hidden').filter(x => x !== id));
+        // #if full
         if (descriptor && !descriptor.builtin) {
             this._settings.set_strv('module-paths',
                 this._settings.get_strv('module-paths').filter(p => p !== descriptor.source));
         }
+        // #endif
     }
 
     _renderLibrary() {
@@ -1122,9 +1133,13 @@ export class SidePanel {
         this._picker.destroy_all_children();
         const t = this._theme;
 
-        const loadedPaths = this._settings.get_strv('module-paths');
         const order = this._settings.get_strv('module-order');
+        // #if full
+        const loadedPaths = this._settings.get_strv('module-paths');
         const files = this._registry.listFiles().filter(p => !loadedPaths.includes(p));
+        // #else
+        //: const files = [];
+        // #endif
         const known = this._registry.all().filter(d => !order.includes(d.id));
 
         /* en-tête du volet : titre + chemin monospace + fermer */
@@ -1132,11 +1147,13 @@ export class SidePanel {
         const headText = new St.BoxLayout({vertical: true, x_expand: true});
         const title = new St.Label({text: 'AJOUTER UN MODULE'});
         title.set_style(labelStyle(t, {size: 11, color: t.accent}));
+        headText.add_child(title);
+        // #if full
         const path = new St.Label({text: userModuleDir().replace(GLib.get_home_dir(), '~')});
         path.clutter_text.ellipsize = Pango.EllipsizeMode.MIDDLE;
         path.set_style(`${labelStyle(t, {size: 9})} font-weight: normal; letter-spacing: 0;`);
-        headText.add_child(title);
         headText.add_child(path);
+        // #endif
         const closeBtn = makePill('✕', t, () => this._hidePicker());
         closeBtn.set_accessible_name('Fermer');
         closeBtn.set_y_align(Clutter.ActorAlign.START);
@@ -1144,6 +1161,7 @@ export class SidePanel {
         head.add_child(closeBtn);
         this._picker.add_child(head);
 
+        // #if full
         /* scripts non encore chargés */
         if (files.length > 0) {
             this._picker.add_child(this._pickerSection('SCRIPTS DISPONIBLES'));
@@ -1152,10 +1170,11 @@ export class SidePanel {
                     () => this._importFile(file), {mono: true}));
             }
         }
+        // #endif
 
         /* modules déjà connus mais absents du panneau */
         if (known.length > 0) {
-            this._picker.add_child(this._pickerSection('MODULES CHARGÉS'));
+            this._picker.add_child(this._pickerSection('MODULES DISPONIBLES'));
             for (const descriptor of known) {
                 this._picker.add_child(makeRow(descriptor.title ?? descriptor.id,
                     () => this._addToPanel(descriptor.id)));
@@ -1164,8 +1183,12 @@ export class SidePanel {
 
         if (files.length === 0 && known.length === 0) {
             const empty = new St.Label({
+                // #if full
                 text: 'Aucun module en attente. Ouvre le catalogue pour en installer '
                     + 'en un clic, ou dépose un .js dans le dossier.',
+                // #else
+                //: text: 'Tous les modules sont déjà dans le panneau.',
+                // #endif
             });
             empty.clutter_text.line_wrap = true;
             empty.set_style(`color: ${t.textDim}; font-size: 11px; padding: 6px 2px;`);
@@ -1173,6 +1196,7 @@ export class SidePanel {
         }
 
         const actions = new St.BoxLayout({x_expand: true, style: 'spacing: 6px; padding-top: 4px;'});
+        // #if full
         const catalogBtn = makePill('Catalogue', t, () => this._openPrefsPage('catalog'), {variant: 'accent'});
         const browseBtn = makePill('Fichier…', t, () => this._openPrefsPage('modules'));
         const openBtn = makePill('Dossier', t,
@@ -1180,6 +1204,9 @@ export class SidePanel {
         actions.add_child(catalogBtn);
         actions.add_child(browseBtn);
         actions.add_child(openBtn);
+        // #else
+        //: actions.add_child(makePill('Préférences', t, () => this._openPrefsPage('modules'), {variant: 'accent'}));
+        // #endif
         this._picker.add_child(actions);
 
         this._addButton?.spSetOpen(true);
@@ -1190,6 +1217,7 @@ export class SidePanel {
         });
     }
 
+    // #if full
     async _importFile(path) {
         try {
             const id = await this._registry.loadFile(path);
@@ -1205,6 +1233,7 @@ export class SidePanel {
             slideIn(card);
         }
     }
+    // #endif
 
     _addToPanel(id) {
         const order = this._settings.get_strv('module-order');
@@ -1216,9 +1245,8 @@ export class SidePanel {
         this._hidePicker();
     }
 
-    /* Aucun sélecteur de fichiers ne peut s'ouvrir dans le processus du
-     * shell : les préférences (processus Gtk) s'en chargent, ainsi que du
-     * catalogue en ligne. `prefs-page` leur dit quelle page afficher. */
+    /* Les préférences tournent dans leur propre processus : `prefs-page`
+     * leur indique la page à afficher. */
     _openPrefsPage(page) {
         this._hidePicker();
         this.close(true);

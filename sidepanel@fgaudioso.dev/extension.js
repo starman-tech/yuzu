@@ -7,18 +7,21 @@ import * as MessageTray from 'resource:///org/gnome/shell/ui/messageTray.js';
 
 import {KeepAwake} from './lib/keepAwake.js';
 import {SidePanel} from './lib/panel.js';
+// #if full
 import {SmartRewrite} from './lib/rewrite.js';
+// #endif
 
 export default class SidePanelExtension extends Extension {
     enable() {
         this._settings = this.getSettings();
         this._keepAwake = new KeepAwake(this._settings);
 
-        /* réécriture de la sélection : globale, indépendante du panneau, et
-         * opt-in — elle prend un raccourci clavier global et envoie le texte
-         * sélectionné à un service distant. */
+        // #if full
+        /* réécriture de la sélection : opt-in, raccourci global, texte envoyé
+         * à un service distant */
         this._rewriteId = this._settings.connect('changed::rewrite-enabled', () => this._syncRewrite());
         this._syncRewrite();
+        // #endif
 
         /* metadata.json déclare le mode `unlock-dialog` : fermer le capot
          * verrouille l'écran, et sans ce mode GNOME désactiverait
@@ -50,7 +53,7 @@ export default class SidePanelExtension extends Extension {
                 source,
                 title: 'Side Panel est installé',
                 body: 'Survole le bord droit de l\'écran ou appuie sur Super+P. '
-                    + 'Choisis les modules à afficher, ou installe-en d\'autres depuis le catalogue.',
+                    + 'Choisis ensuite les modules à afficher.',
             });
             notification.addAction('Choisir les modules', openModules);
             source.addNotification(notification);
@@ -59,6 +62,7 @@ export default class SidePanelExtension extends Extension {
         }
     }
 
+    // #if full
     _syncRewrite() {
         if (this._settings.get_boolean('rewrite-enabled') && !Main.sessionMode.isLocked) {
             this._rewrite ??= new SmartRewrite(this._settings);
@@ -67,6 +71,7 @@ export default class SidePanelExtension extends Extension {
             this._rewrite = null;
         }
     }
+    // #endif
 
     _syncPanel() {
         if (Main.sessionMode.isLocked) {
@@ -75,24 +80,34 @@ export default class SidePanelExtension extends Extension {
         } else {
             this._panel ??= new SidePanel(this);
         }
+        // #if full
         this._syncRewrite();
+        // #endif
     }
 
+    /* Mode `unlock-dialog` : l'extension reste active écran verrouillé
+     * uniquement pour KeepAwake. Fermer le capot verrouille la session ; si
+     * GNOME désactivait l'extension à cet instant, l'inhibition de mise en
+     * veille serait relâchée et l'ordinateur s'endormirait. Dès le
+     * verrouillage, le panneau et son raccourci clavier sont détruits
+     * (_syncPanel) ; disable() libère le reste. */
     disable() {
         if (this._sessionModeId) {
             Main.sessionMode.disconnect(this._sessionModeId);
             this._sessionModeId = 0;
         }
+        // #if full
         if (this._rewriteId) {
             this._settings.disconnect(this._rewriteId);
             this._rewriteId = 0;
         }
+        this._rewrite?.destroy();
+        this._rewrite = null;
+        // #endif
         this._panel?.destroy();
         this._panel = null;
         this._keepAwake?.destroy();
         this._keepAwake = null;
-        this._rewrite?.destroy();
-        this._rewrite = null;
         this._settings = null;
     }
 }

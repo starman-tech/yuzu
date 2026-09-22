@@ -8,15 +8,19 @@ import Gdk from 'gi://Gdk';
 import Gtk from 'gi://Gtk';
 
 import {ExtensionPreferences} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
-import * as Config from 'resource:///org/gnome/Shell/Extensions/js/misc/config.js';
 
+// #if full
+import * as Config from 'resource:///org/gnome/Shell/Extensions/js/misc/config.js';
 import {
     applyInstall, applyUninstall, compareVersions, fetchCatalog, incompatibility,
     installEntry, modulesDir, newSession as newCatalogSession, readInstalled, uninstallEntry,
 } from './lib/catalog.js';
+// #endif
 import {SHAPES, SHAPE_LABELS, themeList} from './lib/theme.js';
 
+// #if full
 Gio._promisify(Gtk.FileDialog.prototype, 'open', 'open_finish');
+// #endif
 
 function rgbaToHex(rgba) {
     const c = v => Math.round(v * 255).toString(16).padStart(2, '0');
@@ -49,7 +53,9 @@ export default class SidePanelPreferences extends ExtensionPreferences {
 
         this._pages = {
             modules: this._modulesPage(settings),
+            // #if full
             catalog: this._catalogPage(settings),
+            // #endif
             settings: this._moduleSettingsPage(settings),
             panel: this._panelPage(settings),
             style: this._stylePage(settings),
@@ -313,7 +319,7 @@ export default class SidePanelPreferences extends ExtensionPreferences {
 
         /* --- intégrés : un interrupteur par module --- */
         const builtin = new Adw.PreferencesGroup({
-            title: 'Modules intégrés',
+            title: 'Modules',
             description: 'Active ceux que tu veux voir dans le panneau. L\'ordre se règle '
                 + 'directement dans le panneau (icône crayon, puis glisser).',
         });
@@ -364,6 +370,7 @@ export default class SidePanelPreferences extends ExtensionPreferences {
             page.add(group);
         }
 
+        // #if full
         /* --- ajoutés : catalogue ou fichier --- */
         const added = new Adw.PreferencesGroup({
             title: 'Modules ajoutés',
@@ -439,6 +446,7 @@ export default class SidePanelPreferences extends ExtensionPreferences {
         renderAdded();
         this._connect(settings, 'changed::module-paths', renderAdded);
         page.add(added);
+        // #endif
 
         /* --- disposition --- */
         const layout = new Adw.PreferencesGroup({title: 'Disposition'});
@@ -462,6 +470,7 @@ export default class SidePanelPreferences extends ExtensionPreferences {
         return page;
     }
 
+    // #if full
     async _importFile(settings, page) {
         const dialog = new Gtk.FileDialog({
             title: 'Choisir un module (.js)',
@@ -694,6 +703,7 @@ export default class SidePanelPreferences extends ExtensionPreferences {
         }
         return row;
     }
+    // #endif
 
     /* ------------------------------------------------ réglages modules */
 
@@ -705,13 +715,8 @@ export default class SidePanelPreferences extends ExtensionPreferences {
 
         const player = new Adw.PreferencesGroup({
             title: 'Lecteur',
-            description: 'La hauteur se déduit de la largeur (ratio 480:270 de la '
-                + 'maquette). Toutes les mesures internes — polices, marges, boutons — '
-                + 'sont mises à l\'échelle proportionnellement : la carte reste une '
-                + 'miniature exacte, jamais une version écrasée.',
+            description: 'Lecteur affiché en priorité quand plusieurs jouent (nom D-Bus MPRIS, ex. « spotify », « firefox »).',
         });
-        player.add(spinRow('Largeur (px)', 'La hauteur suit automatiquement',
-            settings, 'player-width', 160, 640, 10));
         const preferred = new Adw.EntryRow({title: 'Lecteur prioritaire'});
         preferred.set_text(settings.get_string('preferred-player'));
         preferred.connect('changed',
@@ -730,6 +735,7 @@ export default class SidePanelPreferences extends ExtensionPreferences {
         weather.add(location);
         page.add(weather);
 
+        // #if full
         const ai = new Adw.PreferencesGroup({
             title: 'Assistant IA',
             description: 'Chat éphémère branché sur Groq Cloud (console.groq.com → API Keys). '
@@ -776,6 +782,7 @@ export default class SidePanelPreferences extends ExtensionPreferences {
         });
         rewrite.add(rewriteAccel);
         page.add(rewrite);
+        // #endif
         return page;
     }
 
@@ -786,12 +793,14 @@ export default class SidePanelPreferences extends ExtensionPreferences {
         this._cleanups.push(() => object.disconnect(id));
     }
 
+    // #if full
     _toast(page, title) {
         if (this._window?.add_toast)
             this._window.add_toast(new Adw.Toast({title, timeout: 4}));
         else
             console.log(`[sidepanel] ${title}`);
     }
+    // #endif
 }
 
 /** Sous-titre d'un module intégré : description, réseau, confidentialité. */
@@ -806,6 +815,7 @@ function describe(mod) {
     return GLib.markup_escape_text(parts.join('\n'), -1);
 }
 
+// #if full
 /** Page GitHub du fichier d'un module, si le catalogue est sur GitHub. */
 function sourceUrl(catalogUrl, entry) {
     if (entry.homepage)
@@ -813,3 +823,4 @@ function sourceUrl(catalogUrl, entry) {
     const m = /^https:\/\/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\/([^/]+)\/(.*\/)?[^/]*$/.exec(catalogUrl);
     return m ? `https://github.com/${m[1]}/${m[2]}/blob/${m[3]}/${m[4] ?? ''}${entry.file}` : null;
 }
+// #endif

@@ -25,6 +25,7 @@ import Clutter from 'gi://Clutter';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
+import Gvc from 'gi://Gvc';
 import Pango from 'gi://Pango';
 import Shell from 'gi://Shell';
 import St from 'gi://St';
@@ -636,7 +637,10 @@ class PlayerCard {
         ];
         const px = this._px;
 
-        setVectorIcon(this._appIcon, 'spotify-glyph', hex);
+        /* seul le pictogramme de repli prend l'accent : l'icône réelle de
+         * l'application (fichier .desktop du lecteur) reste intacte */
+        if (!this._appIcon.gicon || this._appIconIsFallback)
+            this._setFallbackAppIcon();
         this._devicePill.set_style(
             `background-color: ${hex}; border-radius: ${px(MODULE.radius)}px; `
             + `border: ${px(2)}px solid ${INK}; `
@@ -775,23 +779,9 @@ class PlayerCard {
     }
 
     _setDefaultSink(sink) {
-        /* Gvc d'abord (API native de la barre de son de GNOME) ; repli sur
-         * pactl, présent par défaut sur Ubuntu, si l'appel échoue. */
         try {
-            this._mixer.set_default_sink(sink);
+            this._mixer?.set_default_sink(sink);
             this._refreshOutputName();
-            return;
-        } catch (_e) {}
-        try {
-            const name = sink.get_name();
-            if (name && GLib.find_program_in_path('pactl')) {
-                Gio.Subprocess.new(['pactl', 'set-default-sink', name],
-                    Gio.SubprocessFlags.NONE);
-                timeoutAdd(400, () => {
-                    this._refreshOutputName();
-                    return GLib.SOURCE_REMOVE;
-                });
-            }
         } catch (e) {
             console.error(`[sidepanel] changement de sortie : ${e}`);
         }
@@ -935,11 +925,16 @@ class PlayerCard {
 
     _applyAppIcon(entry) {
         if (entry?.gicon) {
+            this._appIconIsFallback = false;
             this._appIcon.gicon = entry.gicon;
             return;
         }
-        this._appIcon.gicon = null;
-        setVectorIcon(this._appIcon, 'spotify-glyph', this._accent);
+        this._setFallbackAppIcon();
+    }
+
+    _setFallbackAppIcon() {
+        this._appIconIsFallback = true;
+        setVectorIcon(this._appIcon, 'ui-music', this._accent);
     }
 
     /* ------------------------------------------------------------ sync */
@@ -1009,14 +1004,8 @@ class PlayerCard {
 
     /* --------------------------------------------------- sortie audio */
 
-    async _watchAudioOutput() {
+    _watchAudioOutput() {
         try {
-            const {default: Gvc} = await import('gi://Gvc');
-            /* la carte a pu être détruite pendant l'import (reconstruction
-             * du panneau) : ne rien brancher sur des acteurs disposés */
-            if (this._destroyed)
-                return;
-            this._gvc = Gvc;
             this._mixer = new Gvc.MixerControl({name: 'SidePanel'});
             this._mixerStateId = this._mixer.connect('state-changed', (_c, state) => {
                 if (state === Gvc.MixerControlState.READY)

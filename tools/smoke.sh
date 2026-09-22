@@ -10,7 +10,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 LOG="$ROOT/.run/nested.log"
 [ -s "$ROOT/.run/nested.bus" ] || { echo "✗ lance d'abord tools/nested.sh" >&2; exit 1; }
 
-UUID="sidepanel@fgaudioso.dev"
+UUID="$(cat "$ROOT/.run/nested.uuid" 2>/dev/null || echo sidepanel@fgaudioso.dev)"
 ev() { "$ROOT/tools/ev.sh" "$1"; }
 panel() {   # exécute du JS avec p = panneau, puis attend
     ev "import('resource:///org/gnome/shell/ui/main.js').then(M => { M.overview.hide(); const p = M.extensionManager.lookup('$UUID').stateObj._panel; try { $1 } catch (e) { globalThis.__smokeErr = String(e); } }); 'q'" >/dev/null

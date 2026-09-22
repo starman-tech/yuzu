@@ -5,6 +5,7 @@
 #
 #   tools/nested.sh            → lance (Ctrl+C pour quitter)
 #   tools/nested.sh --reset    → repart d'un bac à sable vide
+#   tools/nested.sh --ego      → teste le zip extensions.gnome.org (tools/build.sh --ego)
 #
 # --unsafe-mode autorise org.gnome.Shell.Eval, utilisé par ev.sh / panel.sh /
 # shot.sh ; l'adresse du bus imbriqué est écrite dans .run/nested.bus.
@@ -15,13 +16,30 @@ UUID="sidepanel@fgaudioso.dev"
 RUN="$ROOT/.run"
 SANDBOX="$RUN/sandbox"
 
-[ "${1:-}" = "--reset" ] && rm -rf "$SANDBOX"
+EGO=0
+for arg in "$@"; do
+    case "$arg" in
+        --reset) rm -rf "$SANDBOX" ;;
+        --ego) EGO=1 ;;
+    esac
+done
 mkdir -p "$SANDBOX"/{config,data,cache}
+rm -rf "$SANDBOX/data/gnome-shell/extensions"
 
-DEST="$SANDBOX/data/gnome-shell/extensions/$UUID"
-mkdir -p "$DEST"
-rsync -a --delete "$ROOT/$UUID/" "$DEST/"
+if [ $EGO = 1 ]; then
+    "$ROOT/tools/build.sh" --ego >/dev/null
+    ZIP="$(ls "$ROOT"/dist/ego/*.zip | head -1)"
+    UUID="$(basename "$ZIP" .zip)"
+    DEST="$SANDBOX/data/gnome-shell/extensions/$UUID"
+    mkdir -p "$DEST"
+    python3 -c 'import sys,zipfile; zipfile.ZipFile(sys.argv[1]).extractall(sys.argv[2])' "$ZIP" "$DEST"
+else
+    DEST="$SANDBOX/data/gnome-shell/extensions/$UUID"
+    mkdir -p "$DEST"
+    rsync -a --delete "$ROOT/$UUID/" "$DEST/"
+fi
 glib-compile-schemas "$DEST/schemas/"
+echo "$UUID" > "$RUN/nested.uuid"
 
 # GNOME 49 remplace --nested par --devkit
 MODE=--nested

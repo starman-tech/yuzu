@@ -14,7 +14,7 @@
   ],
   "settings-schema": "org.gnome.shell.extensions.sidepanel",
   "gettext-domain": "sidepanel@fgaudioso.dev",
-  "version": 5,
-  "version-name": "5.0",
+  "version": 6,
+  "version-name": "5.1",
   "url": "https://github.com/starman-tech/sidepanel"
 }

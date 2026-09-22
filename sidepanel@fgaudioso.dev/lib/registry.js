@@ -1,22 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-/* lib/registry.js — catalogue des modules.
+/* lib/registry.js — catalogue des modules disponibles.
  *
- * Deux sources :
- *   • intégrés    -> ./modules/*.js listés dans BUILTINS
- *   • importés    -> n'importe quel .js déposé dans
- *                    ~/.config/sidepanel/modules/ (chargé par import()
- *                    dynamique, donc sans réinstaller l'extension)
- *
- * Contrat d'un module (docs/MODULES.md, exemples dans le dépôt
- * starman-tech/sidepanel-modules) :
+ * Contrat d'un module (docs/MODULES.md) :
  *
  *   export default {
  *       id: 'mon-module',
  *       title: 'Mon module',
  *       icon: 'starred-symbolic',
  *       build(ctx) {
- *           // ctx = {St, Clutter, GLib, Gio, api, theme, settings, panel,
- *           //        moduleWidth, style, utils} — détail dans docs/MODULES.md
  *           return {
  *               actor,               // obligatoire : l'acteur affiché
  *               setTheme(theme) {},  // optionnel : le thème a changé
@@ -28,10 +19,12 @@
  *   };
  */
 
+// #if full
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 
 import assistantModule from '../modules/assistant.js';
+// #endif
 import calendarModule from '../modules/calendar.js';
 import launcherModule from '../modules/launcher.js';
 import marketModule from '../modules/market.js';
@@ -40,16 +33,28 @@ import sysmonModule from '../modules/sysmon.js';
 import todoModule from '../modules/todo.js';
 import trackerModule from '../modules/tracker.js';
 import weatherModule from '../modules/weather.js';
+import {BUNDLED} from './bundled.js';
+// #if full
 import {configDir} from './utils.js';
+// #endif
 
 const BUILTINS = [
     playerModule, trackerModule, marketModule, todoModule,
-    sysmonModule, weatherModule, calendarModule, launcherModule, assistantModule,
+    sysmonModule, weatherModule, calendarModule, launcherModule,
+    // #if full
+    assistantModule,
+    // #endif
+    ...BUNDLED,
 ];
 
+// #if full
+/* Version complète : en plus des modules intégrés, n'importe quel .js
+ * déposé dans ~/.config/sidepanel/modules/ (à la main ou par le catalogue)
+ * est chargé par import() dynamique, sans réinstaller l'extension. */
 export function userModuleDir() {
     return configDir('modules');
 }
+// #endif
 
 export class ModuleRegistry {
     constructor() {
@@ -66,6 +71,7 @@ export class ModuleRegistry {
         return [...this._descriptors.values()];
     }
 
+    // #if full
     isLoaded(path) {
         return this.all().some(d => d.source === path);
     }
@@ -116,4 +122,5 @@ export class ModuleRegistry {
         }
         return loaded;
     }
+    // #endif
 }

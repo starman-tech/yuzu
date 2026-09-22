@@ -24,19 +24,20 @@ export function sourceRemove(id) {
 }
 
 export const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
-export const lerp = (a, b, t) => a + (b - a) * t;
 
 export function ensureDir(path) {
     GLib.mkdir_with_parents(path, 0o700);
     return path;
 }
 
-/* Dossier de données de l'extension. Les versions ≤ 4 écrivaient dans
+const CONFIG = `${GLib.get_user_config_dir()}/sidepanel`;
+
+// #if full
+/* Les versions ≤ 4 écrivaient dans
  * ~/.config/mon-extension ; au premier appel on déplace ce qu'il contient.
  * Fusion entrée par entrée : les préférences (processus séparé) peuvent
  * avoir créé le nouveau dossier avant que le shell ne passe ici. */
 const LEGACY_CONFIG = `${GLib.get_user_config_dir()}/mon-extension`;
-const CONFIG = `${GLib.get_user_config_dir()}/sidepanel`;
 let migrated = false;
 
 function migrateLegacyConfig() {
@@ -67,11 +68,16 @@ function migrateLegacyConfig() {
     }
 }
 
+// #endif
+
+/** Dossier de données de l'extension (~/.config/sidepanel/…), créé au besoin. */
 export function configDir(...parts) {
+    // #if full
     if (!migrated) {
         migrated = true;
         migrateLegacyConfig();
     }
+    // #endif
     return ensureDir([CONFIG, ...parts].join('/'));
 }
 
@@ -88,10 +94,6 @@ export function hashString(str) {
     return GLib.compute_checksum_for_string(GLib.ChecksumType.MD5, str || '', -1);
 }
 
-export function formatUs(us) {
-    const total = Math.max(0, Math.floor((us || 0) / 1000000));
-    return `${Math.floor(total / 60)}:${(total % 60).toString().padStart(2, '0')}`;
-}
 
 export function newSession() {
     return new Soup.Session({timeout: 15, user_agent: 'sidepanel/2.0'});

@@ -1,5 +1,26 @@
 # Changelog
 
+## 5.1
+
+### Nouveau
+- **Édition extensions.gnome.org** (`tools/build.sh --ego`, UUID
+  `sidepanel@starman-tech.github.io`) : les modules du catalogue sont
+  embarqués et s'activent dans les préférences ; pas de chargement à chaud,
+  pas d'assistant ni de réécriture.
+- `tools/nested.sh --ego` pour tester cette édition.
+
+### Changé
+- Le lecteur n'embarque plus le logo Spotify : icône de l'application
+  fournie par le système, note de musique sinon. Changement de sortie audio
+  par Gvc uniquement (plus de `pactl`).
+- Préférences : retrait du réglage « largeur du lecteur », sans effet depuis
+  que la largeur est mesurée.
+
+### Corrigé
+- Le lecteur remplaçait l'icône réelle de l'application par le logo de
+  repli à chaque changement de couleur d'accent.
+- `install.sh` choisit explicitement le zip de l'édition GitHub dans la release.
+
 ## 5.0 — première version publique
 
 ### Nouveau

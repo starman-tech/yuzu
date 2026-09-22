@@ -83,7 +83,7 @@ else
     trap 'rm -rf "$TMP"' EXIT
     info "Téléchargement de la dernière version depuis github.com/$REPO"
     URL="$(curl -fsSL "https://api.github.com/repos/$REPO/releases/latest" \
-        | python3 -c 'import json,sys; a=[x["browser_download_url"] for x in json.load(sys.stdin).get("assets",[]) if x["name"].endswith(".zip")]; print(a[0] if a else "")')"
+        | python3 -c 'import json,sys; a=[x["browser_download_url"] for x in json.load(sys.stdin).get("assets",[]) if x["name"].startswith(sys.argv[1] + "-v") and x["name"].endswith(".zip")]; print(a[0] if a else "")' "$UUID")"
     [ -n "$URL" ] || die "aucune release trouvée sur github.com/$REPO"
     curl -fsSL -o "$TMP/sidepanel.zip" "$URL"
     mkdir -p "$TMP/$UUID"

@@ -13,6 +13,20 @@ installé en un clic sans redémarrer le shell.
 
 **GNOME Shell 46 · 47 · 48 · 49**, X11 et Wayland. [English version](README.md).
 
+## Deux éditions
+
+| | extensions.gnome.org | GitHub (ce dépôt) |
+|---|---|---|
+| Installation | depuis l'application Extensions ou le site | `install.sh` ou le zip de release |
+| Modules | intégrés + modules communautaires embarqués, on active ceux qu'on veut | intégrés + n'importe quel module du catalogue, installé à chaud |
+| Assistant IA et réécriture | — | en option, désactivés par défaut |
+| UUID | `sidepanel@starman-tech.github.io` | `sidepanel@fgaudioso.dev` |
+
+N'installe qu'une des deux. L'édition extensions.gnome.org est construite à
+partir de ce même code avec `tools/build.sh --ego` : le code qui charge des
+modules à chaud ou lance des commandes en est retiré, les règles de revue
+l'interdisant.
+
 ## Installer
 
 ```bash

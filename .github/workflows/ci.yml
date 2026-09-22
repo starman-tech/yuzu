@@ -19,9 +19,13 @@ jobs:
         run: tools/lint.sh
       - name: Installateur
         run: bash -n install.sh && bash -n tools/nested.sh && bash -n tools/build.sh
-      - name: Zip
-        run: tools/build.sh
+      - name: Catalogue (modules embarqués dans l'édition EGO)
+        run: git clone --depth 1 https://github.com/starman-tech/sidepanel-modules ../sidepanel-modules
+      - name: Zips
+        run: tools/build.sh && tools/build.sh --ego
       - uses: actions/upload-artifact@v4
         with:
-          name: sidepanel-zip
-          path: dist/*.zip
+          name: sidepanel-zips
+          path: |
+            dist/*.zip
+            dist/ego/*.zip

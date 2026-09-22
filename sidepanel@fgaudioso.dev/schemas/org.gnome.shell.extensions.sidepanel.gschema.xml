@@ -124,30 +124,40 @@
       <summary>Ville du module météo (géocodée par Open-Meteo)</summary>
     </key>
 
+    <!-- #if full -->
     <key name="ai-api-key" type="s">
       <default>''</default>
       <summary>Clé API Groq Cloud (module assistant)</summary>
     </key>
+    <!-- #endif -->
 
+    <!-- #if full -->
     <key name="ai-model" type="s">
       <default>'qwen/qwen3.8-27b'</default>
       <summary>Modèle Groq du chat (identifiant tel que renvoyé par /v1/models)</summary>
     </key>
+    <!-- #endif -->
 
+    <!-- #if full -->
     <key name="ai-terminal" type="s">
       <default>''</default>
       <summary>Terminal à ouvrir quand aucun n'est ouvert (vide = détection : kitty, gnome-terminal, ptyxis…)</summary>
     </key>
+    <!-- #endif -->
 
+    <!-- #if full -->
     <key name="rewrite-enabled" type="b">
       <default>false</default>
       <summary>Active la réécriture de la sélection (envoie le texte sélectionné à Groq)</summary>
     </key>
+    <!-- #endif -->
 
+    <!-- #if full -->
     <key name="rewrite-shortcut" type="as">
       <default><![CDATA[['<Control>m']]]></default>
       <summary>Raccourci de réécriture intelligente de la sélection (préfixes ~ # > ! ? $ =)</summary>
     </key>
+    <!-- #endif -->
 
     <key name="module-order" type="as">
       <default>['player','tracker','market','todo','sysmon','weather','calendar','launcher']</default>
@@ -159,16 +169,20 @@
       <summary>Modules rangés dans la bibliothèque</summary>
     </key>
 
+    <!-- #if full -->
     <key name="module-paths" type="as">
       <default>[]</default>
       <summary>Chemins des scripts de modules importés</summary>
     </key>
+    <!-- #endif -->
 
+    <!-- #if full -->
     <key name="catalog-url" type="s">
       <default>'https://raw.githubusercontent.com/starman-tech/sidepanel-modules/main/catalog.json'</default>
       <summary>Catalogue de modules communautaires</summary>
       <description>Fichier JSON listant les modules installables en un clic. Peut pointer vers un fork ou un catalogue privé.</description>
     </key>
+    <!-- #endif -->
 
     <key name="prefs-page" type="s">
       <default>''</default>

@@ -70,7 +70,6 @@ class TodoCheckbox extends St.Button {
         this._checked = checked;
         this._onChange = onChange;
 
-        const size = px(22);
         const container = new St.Widget({
             layout_manager: new Clutter.BinLayout(),
             x_expand: true, y_expand: true,
@@ -118,7 +117,6 @@ class TodoCheckbox extends St.Button {
 
     _updateStyle(checked) {
         const px = this._px;
-        const size = px(22);
         const common = `border-radius: ${px(3)}px; padding: 0;`;
         if (checked) {
             this.set_style(`background-color: ${POSITIVE}; `
