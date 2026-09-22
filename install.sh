@@ -34,7 +34,18 @@ while [ $# -gt 0 ]; do
         --modules) MODE=list; PICK="${2:-}"; shift ;;
         --modules=*) MODE=list; PICK="${1#*=}" ;;
         --uninstall) MODE=uninstall ;;
-        -h|--help) sed -n '4,15p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+        -h|--help)
+            cat <<'HELP'
+Installe Side Panel pour l'utilisateur courant (aucun sudo).
+
+  install.sh                        installation + choix des modules
+  install.sh --defaults             modules par défaut, sans question
+  install.sh --all                  tous les modules intégrés
+  install.sh --modules player,todo,weather
+  install.sh --keep                 garde les modules déjà choisis (mise à jour)
+  install.sh --uninstall            désinstalle (les données restent dans ~/.config/sidepanel)
+HELP
+            exit 0 ;;
         *) die "option inconnue : $1 (voir --help)" ;;
     esac
     shift
@@ -58,7 +69,12 @@ command -v gnome-shell >/dev/null || die "GNOME Shell n'est pas installé"
 SHELL_MAJOR="$(gnome-shell --version | grep -oE '[0-9]+' | head -1)"
 
 # ------------------------------------------------ sources : dépôt ou release
-SELF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd || echo "")"
+# Lancé depuis un fichier (clone du dépôt) : sources locales. Lu sur
+# l'entrée standard (curl | bash) : BASH_SOURCE est vide, on télécharge.
+SELF_DIR=""
+if [ -n "${BASH_SOURCE[0]:-}" ] && [ -f "${BASH_SOURCE[0]}" ]; then
+    SELF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+fi
 if [ -n "$SELF_DIR" ] && [ -f "$SELF_DIR/$UUID/metadata.json" ]; then
     SRC="$SELF_DIR/$UUID"
 else
