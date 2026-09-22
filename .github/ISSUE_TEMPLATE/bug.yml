@@ -12,15 +12,15 @@ body:
     id: versions
     attributes:
       label: Versions
-      description: "gnome-shell --version, et la version de Side Panel (Préférences ou metadata.json)"
-      placeholder: GNOME Shell 47.2, Side Panel 5.0, Wayland
+      description: "gnome-shell --version, et la version de Yuzu (Préférences ou metadata.json)"
+      placeholder: GNOME Shell 47.2, Yuzu 5.0, Wayland
     validations:
       required: true
   - type: textarea
     id: log
     attributes:
       label: Journal / Log
-      description: "journalctl -b -o cat /usr/bin/gnome-shell | grep -i sidepanel"
+      description: "journalctl -b -o cat /usr/bin/gnome-shell | grep -i yuzu"
       render: text
   - type: input
     id: modules

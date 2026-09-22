@@ -183,7 +183,7 @@ export const ModuleCard = GObject.registerClass({
         try {
             this._instance?.destroy?.();
         } catch (e) {
-            console.error(`[sidepanel] destroy ${this.moduleId}: ${e}`);
+            console.error(`[yuzu] destroy ${this.moduleId}: ${e}`);
         }
         this._instance = null;
     }

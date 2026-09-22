@@ -3,7 +3,7 @@
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-EXT="$ROOT/sidepanel@fgaudioso.dev"
+EXT="$ROOT/yuzu-plus@starman-tech.github.io"
 fail=0
 step() { printf '\n\033[1m→ %s\033[0m\n' "$1"; }
 

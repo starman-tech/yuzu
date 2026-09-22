@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
-# Installe Side Panel pour l'utilisateur courant (aucun sudo).
+# Installe Yuzu pour l'utilisateur courant (aucun sudo).
 #
 #   ./install.sh                       installation + choix des modules
 #   ./install.sh --defaults            modules par défaut, sans question
 #   ./install.sh --all                 tous les modules intégrés
 #   ./install.sh --modules player,todo,weather
 #   ./install.sh --keep                garde les modules déjà choisis (mise à jour)
-#   ./install.sh --uninstall           désinstalle (tes données restent dans ~/.config/sidepanel)
+#   ./install.sh --uninstall           désinstalle (tes données restent dans ~/.config/yuzu)
 #
 # En une ligne, sans cloner le dépôt :
-#   curl -fsSL https://raw.githubusercontent.com/starman-tech/sidepanel/main/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/starman-tech/yuzu/main/install.sh | bash
 set -euo pipefail
 
-UUID="sidepanel@fgaudioso.dev"
-REPO="starman-tech/sidepanel"
-SCHEMA="org.gnome.shell.extensions.sidepanel"
+UUID="yuzu-plus@starman-tech.github.io"
+REPO="starman-tech/yuzu"
+SCHEMA="org.gnome.shell.extensions.yuzu"
 DEST="${XDG_DATA_HOME:-$HOME/.local/share}/gnome-shell/extensions/$UUID"
 
 bold() { printf '\033[1m%s\033[0m\n' "$*"; }
@@ -36,14 +36,14 @@ while [ $# -gt 0 ]; do
         --uninstall) MODE=uninstall ;;
         -h|--help)
             cat <<'HELP'
-Installe Side Panel pour l'utilisateur courant (aucun sudo).
+Installe Yuzu pour l'utilisateur courant (aucun sudo).
 
   install.sh                        installation + choix des modules
   install.sh --defaults             modules par défaut, sans question
   install.sh --all                  tous les modules intégrés
   install.sh --modules player,todo,weather
   install.sh --keep                 garde les modules déjà choisis (mise à jour)
-  install.sh --uninstall            désinstalle (les données restent dans ~/.config/sidepanel)
+  install.sh --uninstall            désinstalle (les données restent dans ~/.config/yuzu)
 HELP
             exit 0 ;;
         *) die "option inconnue : $1 (voir --help)" ;;
@@ -55,8 +55,8 @@ done
 if [ "$MODE" = uninstall ]; then
     gnome-extensions disable "$UUID" 2>/dev/null || true
     rm -rf "$DEST"
-    info "Side Panel désinstallé. Tes données sont conservées dans ~/.config/sidepanel."
-    info "Pour tout effacer : rm -rf ~/.config/sidepanel ~/.cache/sidepanel && dconf reset -f /org/gnome/shell/extensions/sidepanel/"
+    info "Yuzu désinstallé. Tes données sont conservées dans ~/.config/yuzu."
+    info "Pour tout effacer : rm -rf ~/.config/yuzu ~/.cache/yuzu && dconf reset -f /org/gnome/shell/extensions/yuzu/"
     exit 0
 fi
 
@@ -78,23 +78,23 @@ fi
 if [ -n "$SELF_DIR" ] && [ -f "$SELF_DIR/$UUID/metadata.json" ]; then
     SRC="$SELF_DIR/$UUID"
 else
-    command -v curl >/dev/null || die "curl est nécessaire pour télécharger Side Panel"
+    command -v curl >/dev/null || die "curl est nécessaire pour télécharger Yuzu"
     TMP="$(mktemp -d)"
     trap 'rm -rf "$TMP"' EXIT
     info "Téléchargement de la dernière version depuis github.com/$REPO"
     URL="$(curl -fsSL "https://api.github.com/repos/$REPO/releases/latest" \
         | python3 -c 'import json,sys; a=[x["browser_download_url"] for x in json.load(sys.stdin).get("assets",[]) if x["name"].startswith(sys.argv[1] + "-v") and x["name"].endswith(".zip")]; print(a[0] if a else "")' "$UUID")"
     [ -n "$URL" ] || die "aucune release trouvée sur github.com/$REPO"
-    curl -fsSL -o "$TMP/sidepanel.zip" "$URL"
+    curl -fsSL -o "$TMP/yuzu.zip" "$URL"
     mkdir -p "$TMP/$UUID"
-    python3 -c 'import sys,zipfile; zipfile.ZipFile(sys.argv[1]).extractall(sys.argv[2])' "$TMP/sidepanel.zip" "$TMP/$UUID"
+    python3 -c 'import sys,zipfile; zipfile.ZipFile(sys.argv[1]).extractall(sys.argv[2])' "$TMP/yuzu.zip" "$TMP/$UUID"
     SRC="$TMP/$UUID"
 fi
 
 VERSION="$(python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); print(d.get("version-name", d.get("version")))' "$SRC/metadata.json")"
 SUPPORTED="$(python3 -c 'import json,sys; print(" ".join(json.load(open(sys.argv[1]))["shell-version"]))' "$SRC/metadata.json")"
 
-bold "Side Panel $VERSION — GNOME Shell $SHELL_MAJOR"
+bold "Yuzu $VERSION — GNOME Shell $SHELL_MAJOR"
 case " $SUPPORTED " in
     *" $SHELL_MAJOR "*) ;;
     *) warn "GNOME $SHELL_MAJOR n'est pas dans les versions testées ($SUPPORTED) : l'extension risque d'être refusée ou instable." ;;
@@ -111,6 +111,24 @@ fi
 glib-compile-schemas "$DEST/schemas/"
 
 gs() { gsettings --schemadir "$DEST/schemas" "$@"; }
+
+# ------------------------------------------- reprise de « Side Panel » (≤ 5.1)
+# Même extension sous son ancien nom : on la retire pour ne pas afficher deux
+# panneaux, et on reprend ses réglages. Ses données (~/.config/sidepanel) sont
+# déplacées par l'extension elle-même au premier lancement.
+OLD_UUID="sidepanel@fgaudioso.dev"
+OLD_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/gnome-shell/extensions/$OLD_UUID"
+if [ -d "$OLD_DIR" ]; then
+    gnome-extensions disable "$OLD_UUID" 2>/dev/null || true
+    rm -rf "$OLD_DIR"
+    info "Ancienne version « Side Panel » retirée"
+fi
+if command -v dconf >/dev/null \
+    && [ -z "$(dconf dump /org/gnome/shell/extensions/yuzu/ 2>/dev/null)" ] \
+    && [ -n "$(dconf dump /org/gnome/shell/extensions/sidepanel/ 2>/dev/null)" ]; then
+    dconf dump /org/gnome/shell/extensions/sidepanel/ | dconf load /org/gnome/shell/extensions/yuzu/
+    info "Réglages de « Side Panel » repris"
+fi
 
 # --------------------------------------------------------- choix des modules
 # Lecture de builtins.json : id, titre, défaut, description courte.
@@ -158,7 +176,7 @@ case "$MODE" in
                 [ "${KINDS[$i]}" = f ] && label="[fonction] $label"
                 args+=("${IDS[$i]}" "${label:0:90}" "${DEFAULTS[$i]}")
             done
-            if ! out="$(whiptail --title "Side Panel $VERSION" --separate-output --checklist \
+            if ! out="$(whiptail --title "Yuzu $VERSION" --separate-output --checklist \
                 "Espace pour cocher, Entrée pour valider. Tout se change ensuite dans les préférences, et d'autres modules s'installent depuis le catalogue." \
                 22 110 12 "${args[@]}" 3>&1 1>&2 2>&3 < "$TTY")"; then
                 die "installation annulée (fichiers copiés, extension non configurée)"
@@ -213,10 +231,10 @@ fi
 echo
 if gnome-extensions list 2>/dev/null | grep -qx "$UUID"; then
     gnome-extensions enable "$UUID" 2>/dev/null || true
-    bold "✓ Side Panel $VERSION installé et activé."
+    bold "✓ Yuzu $VERSION installé et activé."
     echo "  Si une version précédente tournait, recharge GNOME Shell pour appliquer la mise à jour :"
 else
-    bold "✓ Side Panel $VERSION installé."
+    bold "✓ Yuzu $VERSION installé."
     echo "  GNOME Shell doit redécouvrir ses extensions avant de pouvoir l'activer :"
 fi
 if [ "${XDG_SESSION_TYPE:-}" = x11 ]; then
@@ -228,4 +246,4 @@ echo "  puis, si ce n'est pas déjà fait :  gnome-extensions enable $UUID"
 echo
 echo "  Ouvrir / fermer : survole le bord droit de l'écran, ou Super+P"
 echo "  Préférences     : gnome-extensions prefs $UUID"
-echo "  Journal         : journalctl -f -o cat /usr/bin/gnome-shell | grep -i sidepanel"
+echo "  Journal         : journalctl -f -o cat /usr/bin/gnome-shell | grep -i yuzu"

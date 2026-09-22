@@ -252,7 +252,7 @@ for (const [name, body] of Object.entries(OWN_ICONS)) {
 let cacheDir = null;
 
 function dir() {
-    cacheDir ??= ensureDir(`${GLib.get_user_cache_dir()}/sidepanel/vector-icons`);
+    cacheDir ??= ensureDir(`${GLib.get_user_cache_dir()}/yuzu/vector-icons`);
     return cacheDir;
 }
 

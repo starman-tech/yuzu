@@ -30,20 +30,21 @@ export function ensureDir(path) {
     return path;
 }
 
-const CONFIG = `${GLib.get_user_config_dir()}/sidepanel`;
+const CONFIG = `${GLib.get_user_config_dir()}/yuzu`;
 
 // #if full
-/* Les versions ≤ 4 écrivaient dans
- * ~/.config/mon-extension ; au premier appel on déplace ce qu'il contient.
- * Fusion entrée par entrée : les préférences (processus séparé) peuvent
- * avoir créé le nouveau dossier avant que le shell ne passe ici. */
-const LEGACY_CONFIG = `${GLib.get_user_config_dir()}/mon-extension`;
+/* Anciennes versions : ~/.config/mon-extension (≤ 4), ~/.config/sidepanel
+ * (5.x, avant le nom Yuzu). Au premier appel, leur contenu est déplacé ici,
+ * entrée par entrée : les préférences (processus séparé) peuvent avoir créé
+ * le nouveau dossier avant que le shell ne passe par là. */
+const LEGACY_CONFIGS = ['mon-extension', 'sidepanel']
+    .map(name => `${GLib.get_user_config_dir()}/${name}`);
 let migrated = false;
 
-function migrateLegacyConfig() {
-    if (!GLib.file_test(LEGACY_CONFIG, GLib.FileTest.IS_DIR))
+function migrateLegacyConfig(legacyPath) {
+    if (!GLib.file_test(legacyPath, GLib.FileTest.IS_DIR))
         return;
-    const legacy = Gio.File.new_for_path(LEGACY_CONFIG);
+    const legacy = Gio.File.new_for_path(legacyPath);
     try {
         if (!GLib.file_test(CONFIG, GLib.FileTest.EXISTS)) {
             legacy.move(Gio.File.new_for_path(CONFIG), Gio.FileCopyFlags.NONE, null, null);
@@ -62,20 +63,20 @@ function migrateLegacyConfig() {
                 legacy.delete(null); // échoue sans bruit s'il reste des doublons
             } catch (_e) {}
         }
-        console.log('[sidepanel] données migrées : ~/.config/mon-extension → ~/.config/sidepanel');
+        console.log(`[yuzu] données migrées : ${legacyPath} → ${CONFIG}`);
     } catch (e) {
-        console.warn(`[sidepanel] migration du dossier de config : ${e}`);
+        console.warn(`[yuzu] migration de ${legacyPath} : ${e}`);
     }
 }
 
 // #endif
 
-/** Dossier de données de l'extension (~/.config/sidepanel/…), créé au besoin. */
+/** Dossier de données de l'extension (~/.config/yuzu/…), créé au besoin. */
 export function configDir(...parts) {
     // #if full
     if (!migrated) {
         migrated = true;
-        migrateLegacyConfig();
+        LEGACY_CONFIGS.forEach(migrateLegacyConfig);
     }
     // #endif
     return ensureDir([CONFIG, ...parts].join('/'));
@@ -87,7 +88,7 @@ export function configFile(name) {
 }
 
 export function cacheDir(...parts) {
-    return ensureDir([`${GLib.get_user_cache_dir()}/sidepanel`, ...parts].join('/'));
+    return ensureDir([`${GLib.get_user_cache_dir()}/yuzu`, ...parts].join('/'));
 }
 
 export function hashString(str) {
@@ -96,7 +97,7 @@ export function hashString(str) {
 
 
 export function newSession() {
-    return new Soup.Session({timeout: 15, user_agent: 'sidepanel/2.0'});
+    return new Soup.Session({timeout: 15, user_agent: 'yuzu/6'});
 }
 
 export async function fetchBytes(session, url, cancellable = null, headers = null) {

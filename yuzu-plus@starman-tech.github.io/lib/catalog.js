@@ -5,7 +5,7 @@
  * que Gio, GLib et Soup, jamais St ni Gtk.
  *
  * Le catalogue est un JSON (clé `catalog-url`, par défaut le dépôt
- * starman-tech/sidepanel-modules) :
+ * starman-tech/yuzu-modules) :
  *
  *   {
  *     "schema": 1,
@@ -40,8 +40,8 @@ export const BUILTIN_IDS = ['player', 'tracker', 'market', 'todo', 'sysmon',
 const ID_RE = /^[a-z][a-z0-9-]{1,39}$/;
 const VERSION_RE = /^\d+(\.\d+){0,2}$/;
 
-const CONFIG = `${GLib.get_user_config_dir()}/sidepanel`;
-const CACHE = `${GLib.get_user_cache_dir()}/sidepanel`;
+const CONFIG = `${GLib.get_user_config_dir()}/yuzu`;
+const CACHE = `${GLib.get_user_cache_dir()}/yuzu`;
 
 function ensure(path) {
     GLib.mkdir_with_parents(path, 0o700);
@@ -103,7 +103,7 @@ export function validateEntry(entry) {
  * sinon la raison, à afficher telle quelle. */
 export function incompatibility(entry, extensionVersion, shellVersion) {
     if (entry.minExtension && extensionVersion < entry.minExtension)
-        return `demande Side Panel ${entry.minExtension} ou plus récent`;
+        return `demande Yuzu ${entry.minExtension} ou plus récent`;
     const major = String(shellVersion).split('.')[0];
     if (Array.isArray(entry.shell) && entry.shell.length && !entry.shell.includes(major))
         return `non testé sur GNOME ${major}`;
@@ -111,7 +111,7 @@ export function incompatibility(entry, extensionVersion, shellVersion) {
 }
 
 export function newSession() {
-    return new Soup.Session({timeout: 20, user_agent: 'sidepanel-catalog/1'});
+    return new Soup.Session({timeout: 20, user_agent: 'yuzu-catalog/1'});
 }
 
 async function getBytes(session, url, cancellable) {
@@ -140,7 +140,7 @@ export async function fetchCatalog(session, url, cancellable = null) {
         for (const entry of data.modules) {
             const err = validateEntry(entry);
             if (err)
-                console.warn(`[sidepanel] catalogue : entrée ignorée — ${err}`);
+                console.warn(`[yuzu] catalogue : entrée ignorée — ${err}`);
             else
                 modules.push(entry);
         }

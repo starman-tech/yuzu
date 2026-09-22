@@ -10,7 +10,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 LOG="$ROOT/.run/nested.log"
 [ -s "$ROOT/.run/nested.bus" ] || { echo "✗ lance d'abord tools/nested.sh" >&2; exit 1; }
 
-UUID="$(cat "$ROOT/.run/nested.uuid" 2>/dev/null || echo sidepanel@fgaudioso.dev)"
+UUID="$(cat "$ROOT/.run/nested.uuid" 2>/dev/null || echo yuzu-plus@starman-tech.github.io)"
 ev() { "$ROOT/tools/ev.sh" "$1"; }
 panel() {   # exécute du JS avec p = panneau, puis attend
     ev "import('resource:///org/gnome/shell/ui/main.js').then(M => { M.overview.hide(); const p = M.extensionManager.lookup('$UUID').stateObj._panel; try { $1 } catch (e) { globalThis.__smokeErr = String(e); } }); 'q'" >/dev/null
@@ -37,7 +37,7 @@ sleep 4
 state="$(result 'globalThis.__smokeState')"
 echo "  état : $state (1 = actif)"
 
-errors="$(tail -n +"$((start + 1))" "$LOG" | grep -E "JS ERROR|disposed|TypeError|ReferenceError|Unhandled promise|\[sidepanel\].*(erreur|error)|St-CRITICAL|GLib-GObject-CRITICAL|Gjs-CRITICAL" )"
+errors="$(tail -n +"$((start + 1))" "$LOG" | grep -E "JS ERROR|disposed|TypeError|ReferenceError|Unhandled promise|\[yuzu\].*(erreur|error)|St-CRITICAL|GLib-GObject-CRITICAL|Gjs-CRITICAL" )"
 thrown="$(result 'globalThis.__smokeErr ?? ""')"
 if [ -n "$errors" ] || [ -n "$thrown" ] || [ "$state" != 1 ]; then
     echo; echo "✗ problèmes :"; [ -n "$thrown" ] && echo "  $thrown"; echo "$errors" | head -20

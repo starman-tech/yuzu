@@ -49,7 +49,7 @@ const BUILTINS = [
 
 // #if full
 /* Version complète : en plus des modules intégrés, n'importe quel .js
- * déposé dans ~/.config/sidepanel/modules/ (à la main ou par le catalogue)
+ * déposé dans ~/.config/yuzu/modules/ (à la main ou par le catalogue)
  * est chargé par import() dynamique, sans réinstaller l'extension. */
 export function userModuleDir() {
     return configDir('modules');
@@ -90,7 +90,7 @@ export class ModuleRegistry {
                     files.push(`${userModuleDir()}/${name}`);
             }
         } catch (e) {
-            console.warn(`[sidepanel] lecture du dossier modules : ${e}`);
+            console.warn(`[yuzu] lecture du dossier modules : ${e}`);
         }
         return files.sort();
     }
@@ -117,7 +117,7 @@ export class ModuleRegistry {
             try {
                 loaded.push(await this.loadFile(path));
             } catch (e) {
-                console.error(`[sidepanel] import de ${path} : ${e}`);
+                console.error(`[yuzu] import de ${path} : ${e}`);
             }
         }
         return loaded;

@@ -1,4 +1,4 @@
-/* stylesheet.css — composants Side Panel, NÉO-BRUTALISME PIXEL sombre.
+/* stylesheet.css — composants Yuzu, NÉO-BRUTALISME PIXEL sombre.
  *
  *   #1E223D  Space Cadet   base
  *   #2A2F52  surface des blocs
@@ -313,49 +313,7 @@ StScrollBar StButton#vhandle:active {
     color: #8F846F;
 }
 
-/* ================================================ compat (anciens usages) */
-
-.sp-btn {
-    border-radius: 4px;
-    background-color: #2A2F52;
-    border: 3px solid #E6D5B7;
-    color: #E6D5B7;
-    transition-duration: 120ms;
-}
-
-.sp-btn:hover {
-    background-color: #343A63;
-}
-
-.sp-btn-accent,
-.sp-btn.sp-checked {
-    background-color: #F54F1B;
-    color: #12152A;
-}
-
-.sp-btn-flat {
-    background-color: transparent;
-    border-color: transparent;
-}
-
-.sp-pill-solid {
-    border-radius: 4px;
-    background-color: #F54F1B;
-    color: #12152A;
-    transition-duration: 120ms;
-}
-
-.sp-play-square {
-    border-radius: 4px;
-    background-color: #F54F1B;
-    transition-duration: 120ms;
-}
-
-.sp-iconbtn {
-    background-color: transparent;
-    border: none;
-}
-
+/* #if full */
 /* ================================================ bandeau de réécriture */
 
 .sp-toast {
@@ -369,6 +327,7 @@ StScrollBar StButton#vhandle:active {
     box-shadow: 4px 4px 0px 0px #F54F1B;
     padding: 8px 14px;
 }
+/* #endif */
 
 /* ═══ THÈME CLAIR ═══
  * Mêmes règles que ci-dessus, sous `.sp-light` que le panneau pose sur sa
@@ -439,8 +398,3 @@ StScrollBar StButton#vhandle:active {
 .sp-light .sp-entry:focus { border-color: #F54F1B; background-color: #F3E9D6; }
 .sp-light .sp-entry StLabel.hint-text { color: #7A7C8E; }
 
-.sp-light .sp-btn { background-color: #F3E9D6; border-color: #1E223D; color: #1E223D; }
-.sp-light .sp-btn:hover { background-color: #EADFC8; }
-.sp-light .sp-btn-accent,
-.sp-light .sp-btn.sp-checked { background-color: #F54F1B; color: #12152A; }
-.sp-light .sp-btn-flat { background-color: transparent; border-color: transparent; }

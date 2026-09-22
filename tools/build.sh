@@ -6,17 +6,17 @@
 #   tools/build.sh           version complète (GitHub)
 #   tools/build.sh --ego     version extensions.gnome.org : sans catalogue à
 #                            chaud ni assistant, modules du catalogue embarqués
-#                            (dépôt sidepanel-modules à côté de celui-ci, ou
-#                            SIDEPANEL_MODULES=chemin)
+#                            (dépôt yuzu-modules à côté de celui-ci, ou
+#                            YUZU_MODULES=chemin)
 # Seuls les fichiers nécessaires à l'exécution sont inclus.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-UUID="sidepanel@fgaudioso.dev"
+UUID="yuzu-plus@starman-tech.github.io"
 EXT="$ROOT/$UUID"
 EDITION=full
 [ "${1:-}" = "--ego" ] && EDITION=ego
-CATALOG="${SIDEPANEL_MODULES:-$ROOT/../sidepanel-modules}"
+CATALOG="${YUZU_MODULES:-$ROOT/../yuzu-modules}"
 
 "$ROOT/tools/lint.sh" >/dev/null || { echo "✗ tools/lint.sh échoue : corrige avant de construire" >&2; exit 1; }
 

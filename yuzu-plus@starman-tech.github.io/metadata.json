@@ -1,0 +1,20 @@
+{
+  "uuid": "yuzu-plus@starman-tech.github.io",
+  "name": "Yuzu",
+  "description": "Floating side panel for GNOME Shell, made of cards you choose: media player, time tracker, markets, to-do, system monitor, weather, calendar, favourite apps and an optional AI assistant. Install more modules from the community catalog without restarting the shell.",
+  "shell-version": [
+    "46",
+    "47",
+    "48",
+    "49"
+  ],
+  "session-modes": [
+    "user",
+    "unlock-dialog"
+  ],
+  "settings-schema": "org.gnome.shell.extensions.yuzu",
+  "gettext-domain": "yuzu-plus@starman-tech.github.io",
+  "version": 7,
+  "version-name": "6.0",
+  "url": "https://github.com/starman-tech/yuzu"
+}

@@ -43,7 +43,7 @@ function switchRow(title, subtitle, settings, key) {
     return row;
 }
 
-export default class SidePanelPreferences extends ExtensionPreferences {
+export default class YuzuPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
         const settings = this.getSettings();
         this._window = window;
@@ -305,7 +305,7 @@ export default class SidePanelPreferences extends ExtensionPreferences {
             const [, bytes] = GLib.file_get_contents(`${this.path}/builtins.json`);
             return JSON.parse(new TextDecoder().decode(bytes));
         } catch (e) {
-            console.error(`[sidepanel] builtins.json : ${e}`);
+            console.error(`[yuzu] builtins.json : ${e}`);
             return {modules: [], features: []};
         }
     }
@@ -798,7 +798,7 @@ export default class SidePanelPreferences extends ExtensionPreferences {
         if (this._window?.add_toast)
             this._window.add_toast(new Adw.Toast({title, timeout: 4}));
         else
-            console.log(`[sidepanel] ${title}`);
+            console.log(`[yuzu] ${title}`);
     }
     // #endif
 }

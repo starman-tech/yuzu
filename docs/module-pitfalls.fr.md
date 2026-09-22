@@ -1,12 +1,12 @@
 ---
-name: sidepanel-module
-description: Écrire un module fonctionnel, dans le style « néo-brutalisme pixel », pour l'extension GNOME Shell « Side Panel » (sidepanel@fgaudioso.dev). À charger dès qu'on demande une carte, un widget ou un module pour ce panneau.
+name: yuzu-module
+description: Écrire un module fonctionnel, dans le style « néo-brutalisme pixel », pour l'extension GNOME Shell « Yuzu » (yuzu-plus@starman-tech.github.io). À charger dès qu'on demande une carte, un widget ou un module pour ce panneau.
 ---
 
-# Skill : écrire un module Side Panel
+# Skill : écrire un module Yuzu
 
 Tu vas produire **un seul fichier `.js`** (ESM, GJS) que l'utilisateur dépose dans
-`~/.config/sidepanel/modules/` puis importe avec le bouton « ＋ » du panneau.
+`~/.config/yuzu/modules/` puis importe avec le bouton « ＋ » du panneau.
 Aucune réinstallation de l'extension, aucun rechargement du shell.
 
 Le fichier doit être **complet, autonome et fonctionnel du premier coup**. Pars
@@ -141,7 +141,7 @@ En-tête type d'un module (reproduis-le) :
 14. **Réseau** : Soup 3 uniquement via le helper `fetchText` du template. Toujours un `User-Agent`. Toujours lire `msg.status_code` (jamais `get_status()` sur un code inconnu comme 429 : GJS lève). Une erreur réseau ⇒ afficher `—` ou un message discret `textMuted`, jamais une exception non attrapée.
 15. **Sous-processus** : `Gio.Subprocess` avec un `argv` tableau (jamais une chaîne shell), `communicate_utf8_async`, timeout via `GLib.timeout_add` + `force_exit()`. Vérifie que le binaire existe (`GLib.find_program_in_path`) et affiche « <outil> introuvable » sinon. Commandes en lecture seule uniquement, jamais `sudo`.
 16. **Cairo** (`St.DrawingArea`) : le handler `repaint` est enveloppé dans try/catch, dessine en `k*s`, et termine par `cr.$dispose()`.
-17. **Logs** : `console.log/warn/error('[sidepanel] …')`. Jamais de `print`.
+17. **Logs** : `console.log/warn/error('[yuzu] …')`. Jamais de `print`.
 18. **Pas de `await` au niveau module**, pas d'accès réseau ni de sous-processus dans `build()` : `build()` construit l'UI et charge le cache disque ; le premier chargement se fait dans `onOpen()`.
 19. **Pas de Web API** : pas de `fetch`, `setTimeout`, `setInterval`, `localStorage`, `document`, `window`. (`TextDecoder`/`TextEncoder` existent.)
 
@@ -170,7 +170,7 @@ Dans ton acteur, une icône = `new St.Icon({icon_name: 'xxx-symbolic', icon_size
 - **Liste de lignes cliquables** : `_row(text, onClick)` (classe `sp-row`).
 - **Champ de saisie** : `_entry(hint, onActivate)` (classe `sp-entry`, grab clavier géré).
 - **Message d'état** (vide, erreur, chargement) : `_status(text, kind)`.
-- **Réseau** : `fetchText(url, headers)` ; **cache disque** : `readJson(path)` / `writeJson(path, obj)` dans `~/.cache/sidepanel/<id>.json` ; **persistance** : `~/.config/sidepanel/<id>.json`.
+- **Réseau** : `fetchText(url, headers)` ; **cache disque** : `readJson(path)` / `writeJson(path, obj)` dans `~/.cache/yuzu/<id>.json` ; **persistance** : `~/.config/yuzu/<id>.json`.
 - **Sous-processus** : `runCommand(argv, {timeoutMs})` → `{ok, stdout, stderr}`.
 - **Rafraîchissement périodique** : `this._startTimer(ms, fn)` / `this._stopTimer()`.
 
@@ -185,7 +185,7 @@ un bouton « Voir plus » ou un défilement interne (`St.ScrollView` plafonné �
 - Lecture seule sur la machine : `/proc`, `/sys`, `journalctl`, `ss`, `nmcli`, `ip`, `who`, `ufw status`… Jamais de modification sans clic explicite de l'utilisateur, jamais de `sudo` ni de `pkexec` silencieux.
 - Scan réseau (`nmap`, `arp-scan`) : réservé au réseau local de l'utilisateur ; affiche une ligne « scan de ton réseau local uniquement » la première fois et limite la cadence (≥ 60 s).
 - Aucune donnée envoyée à un service tiers sans que ce soit le but affiché du module (et alors un seul domaine, documenté en tête de fichier).
-- Clés d'API : lues dans `~/.config/sidepanel/<id>.json` (`{ "apiKey": "…" }`), jamais codées en dur ; sans clé, la carte affiche « clé absente » et reste utilisable pour le reste.
+- Clés d'API : lues dans `~/.config/yuzu/<id>.json` (`{ "apiKey": "…" }`), jamais codées en dur ; sans clé, la carte affiche « clé absente » et reste utilisable pour le reste.
 - Une sortie de commande n'est jamais affichée brute : parse, tronque, formate.
 
 ---
@@ -197,9 +197,9 @@ un bouton « Voir plus » ou un défilement interne (`St.ScrollView` plafonné �
    et où il persiste.
 2. **Trois lignes d'installation** :
    ```
-   cp <id>.js ~/.config/sidepanel/modules/
+   cp <id>.js ~/.config/yuzu/modules/
    # puis dans le panneau : ＋ → choisir <id>.js
-   journalctl -f -o cat /usr/bin/gnome-shell | grep -i sidepanel   # en cas de carte rouge
+   journalctl -f -o cat /usr/bin/gnome-shell | grep -i yuzu   # en cas de carte rouge
    ```
 3. Rien d'autre : pas de README séparé, pas de version alternative.
 

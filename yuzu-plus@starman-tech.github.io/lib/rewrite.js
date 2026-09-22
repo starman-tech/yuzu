@@ -182,7 +182,7 @@ export class SmartRewrite {
             }
             return this._run(selection, previous);
         }).catch(e => {
-            console.warn(`[sidepanel] réécriture : ${e}`);
+            console.warn(`[yuzu] réécriture : ${e}`);
             this._toast(`Erreur : ${e.message ?? e}`, {danger: true});
         }).finally(() => {
             this._busy = false;
@@ -307,7 +307,7 @@ export class SmartRewrite {
                 return GLib.SOURCE_REMOVE;
             });
         } catch (e) {
-            console.warn(`[sidepanel] réécriture : collage : ${e}`);
+            console.warn(`[yuzu] réécriture : collage : ${e}`);
             this._toast('Résultat dans le presse-papiers (Ctrl+V)', {danger: false});
         }
     }

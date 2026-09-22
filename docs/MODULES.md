@@ -1,9 +1,9 @@
-# Writing a Side Panel module
+# Writing a Yuzu module
 
 A module is **one JavaScript file** that adds a card to the panel. It runs in
 the GNOME Shell process (GJS, ES modules), is loaded without restarting the
 shell, and can be shared with everyone through the
-[community catalog](https://github.com/starman-tech/sidepanel-modules).
+[community catalog](https://github.com/starman-tech/yuzu-modules).
 
 - [Installing modules](#installing-modules)
 - [The contract](#the-contract)
@@ -18,7 +18,7 @@ shell, and can be shared with everyone through the
 |---|---|
 | The catalog | Preferences → **Catalogue** → **Installer**. The file is checked against its SHA-256 and the card appears immediately. |
 | A file | Preferences → **Modules** → **Importer un fichier…**, or the **＋** button in the panel → **Fichier…** |
-| By hand | Drop the `.js` in `~/.config/sidepanel/modules/`, then **＋** in the panel. |
+| By hand | Drop the `.js` in `~/.config/yuzu/modules/`, then **＋** in the panel. |
 
 Updates from the catalog are applied live: each version is saved under a new
 file name (`<id>-<version>.js`), because GJS caches imported modules by URL
@@ -76,8 +76,8 @@ state that must survive in a file (see `utils.configFile`).
 | `style.cardStyle(theme, {padding, radius, shadow})` | CSS for an inner block with the theme's border. |
 | `utils.timeoutAdd(ms, fn)` / `utils.sourceRemove(id)` | Timers. `sourceRemove` ignores `0` and returns `0`: `this._t = utils.sourceRemove(this._t)`. |
 | `utils.scaleFactor()` | HiDPI factor. Multiply sizes you set **in JS** (`set_width`, `set_height`); CSS pixels are scaled for you. |
-| `utils.configFile(name)` | `~/.config/sidepanel/<name>`; the folder is created. |
-| `utils.cacheDir(...parts)` | `~/.cache/sidepanel/...`; created. |
+| `utils.configFile(name)` | `~/.config/yuzu/<name>`; the folder is created. |
+| `utils.cacheDir(...parts)` | `~/.cache/yuzu/...`; created. |
 | `utils.readJson(path, fallback)` / `utils.writeJson(path, value)` | JSON files, never throw on read. |
 | `utils.newSession()` / `utils.fetchBytes(session, url, cancellable, headers)` | HTTP through libsoup 3. Declare every host you contact in `module.json` → `network`. |
 
@@ -114,14 +114,14 @@ More pitfalls (in French), from building the built-in modules:
 ## Testing
 
 ```bash
-git clone https://github.com/starman-tech/sidepanel
-cd sidepanel
+git clone https://github.com/starman-tech/yuzu
+cd yuzu
 tools/nested.sh          # an isolated nested GNOME Shell with the extension
 ```
 
 `tools/nested.sh` keeps its configuration in `.run/sandbox`, so your real
 session is never touched. Copy your module to
-`.run/sandbox/config/sidepanel/modules/`, then use **＋** in the nested panel.
+`.run/sandbox/config/yuzu/modules/`, then use **＋** in the nested panel.
 Logs: `.run/nested.log`.
 
 Inside the nested shell, `tools/panel.sh 'code'` runs JavaScript with `p` bound
@@ -129,6 +129,6 @@ to the panel, and `tools/shot.sh name` saves a screenshot to `tools/shots/`.
 
 ## Publishing to the catalog
 
-See [sidepanel-modules/CONTRIBUTING.md](https://github.com/starman-tech/sidepanel-modules/blob/main/CONTRIBUTING.md).
+See [yuzu-modules/CONTRIBUTING.md](https://github.com/starman-tech/yuzu-modules/blob/main/CONTRIBUTING.md).
 In short: a folder `modules/<id>/` with `<id>.js` and `module.json`, run
 `tools/build-catalog.py`, open a pull request.

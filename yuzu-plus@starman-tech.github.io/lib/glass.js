@@ -52,7 +52,7 @@ export function applyBackdropBlur(actor, theme, enabled) {
         actor.add_effect_with_name('sp-blur', effect);
         return true;
     } catch (e) {
-        console.warn(`[sidepanel] flou indisponible : ${e}`);
+        console.warn(`[yuzu] flou indisponible : ${e}`);
         return false;
     }
 }
@@ -160,7 +160,7 @@ class LiquidBackground extends St.DrawingArea {
         } catch (e) {
             /* Une exception répétée dans un handler de repaint peut emporter le
              * shell : on arrête l'animation plutôt que de la relancer. */
-            console.error(`[sidepanel] rendu du fond interrompu : ${e}`);
+            console.error(`[yuzu] rendu du fond interrompu : ${e}`);
             this.stop();
         }
     }

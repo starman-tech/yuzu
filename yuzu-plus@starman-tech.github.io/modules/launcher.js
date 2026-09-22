@@ -148,7 +148,7 @@ class LauncherCard {
             try {
                 app.activate();
             } catch (e) {
-                console.error(`[sidepanel] lancement de ${app.get_id()} : ${e}`);
+                console.error(`[yuzu] lancement de ${app.get_id()} : ${e}`);
             }
             this._panel?.close?.(true);
         });

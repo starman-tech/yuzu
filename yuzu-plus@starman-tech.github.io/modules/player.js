@@ -307,7 +307,7 @@ class PlayerCard {
         this._positionTimer = 0;
         this._session = newSession();
         this._artCancel = null;
-        this._cacheDir = ensureDir(`${GLib.get_user_cache_dir()}/sidepanel/art`);
+        this._cacheDir = ensureDir(`${GLib.get_user_cache_dir()}/yuzu/art`);
         this._favFile = configFile('player-favorites.json');
 
         this._loadFavorites();
@@ -320,8 +320,7 @@ class PlayerCard {
 
     _build() {
         const s = scaleFactor();
-        const logicalWidth = this._moduleWidth
-            ?? this._settings.get_int('player-width');
+        const logicalWidth = this._moduleWidth;
         const k = logicalWidth / DESIGN_WIDTH;
         const logicalHeight = Math.round(DESIGN_HEIGHT * k);
 
@@ -783,7 +782,7 @@ class PlayerCard {
             this._mixer?.set_default_sink(sink);
             this._refreshOutputName();
         } catch (e) {
-            console.error(`[sidepanel] changement de sortie : ${e}`);
+            console.error(`[yuzu] changement de sortie : ${e}`);
         }
     }
 
@@ -813,7 +812,7 @@ class PlayerCard {
                     const [names] = conn.call_finish(res).deep_unpack();
                     names.filter(n => n.startsWith(MPRIS_PREFIX)).forEach(n => this._addPlayer(n));
                 } catch (e) {
-                    console.error(`[sidepanel] ListNames: ${e}`);
+                    console.error(`[yuzu] ListNames: ${e}`);
                 }
             });
     }
@@ -919,7 +918,7 @@ class PlayerCard {
         try {
             this._player?.[`${method}Remote`]();
         } catch (e) {
-            console.error(`[sidepanel] ${method}: ${e}`);
+            console.error(`[yuzu] ${method}: ${e}`);
         }
     }
 
@@ -1006,7 +1005,7 @@ class PlayerCard {
 
     _watchAudioOutput() {
         try {
-            this._mixer = new Gvc.MixerControl({name: 'SidePanel'});
+            this._mixer = new Gvc.MixerControl({name: 'Yuzu'});
             this._mixerStateId = this._mixer.connect('state-changed', (_c, state) => {
                 if (state === Gvc.MixerControlState.READY)
                     this._refreshOutputName();
@@ -1015,7 +1014,7 @@ class PlayerCard {
                 () => this._refreshOutputName());
             this._mixer.open();
         } catch (e) {
-            console.warn(`[sidepanel] Gvc indisponible : ${e}`);
+            console.warn(`[yuzu] Gvc indisponible : ${e}`);
             if (!this._destroyed)
                 this._pillLabel.text = 'Sortie audio';
         }
@@ -1073,7 +1072,7 @@ class PlayerCard {
             this._volSink.volume = Math.round(this._volumeFrac * max);
             this._volSink.push_volume();
         } catch (e) {
-            console.warn(`[sidepanel] volume : ${e}`);
+            console.warn(`[yuzu] volume : ${e}`);
         }
     }
 
@@ -1092,7 +1091,7 @@ class PlayerCard {
         try {
             app?.activate();
         } catch (e) {
-            console.warn(`[sidepanel] activation de ${desktop} : ${e}`);
+            console.warn(`[yuzu] activation de ${desktop} : ${e}`);
         }
     }
 
@@ -1103,7 +1102,7 @@ class PlayerCard {
         try {
             player.Shuffle = !player.Shuffle;
         } catch (e) {
-            console.error(`[sidepanel] Shuffle : ${e}`);
+            console.error(`[yuzu] Shuffle : ${e}`);
         }
     }
 
@@ -1320,7 +1319,7 @@ class PlayerCard {
             if (trackId)
                 this._player?.SetPositionRemote(trackId, target);
         } catch (e) {
-            console.error(`[sidepanel] seek: ${e}`);
+            console.error(`[yuzu] seek: ${e}`);
         }
     }
 
@@ -1333,7 +1332,7 @@ class PlayerCard {
             const current = player.LoopStatus ?? 'None';
             player.LoopStatus = order[(order.indexOf(current) + 1) % order.length];
         } catch (e) {
-            console.error(`[sidepanel] LoopStatus : ${e}`);
+            console.error(`[yuzu] LoopStatus : ${e}`);
         }
     }
 

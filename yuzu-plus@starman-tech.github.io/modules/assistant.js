@@ -499,7 +499,7 @@ class AssistantCard {
                 this._modelIds = ids;
                 fill(ids);
             }).catch(e => {
-                console.warn(`[sidepanel] assistant : liste des modèles : ${e}`);
+                console.warn(`[yuzu] assistant : liste des modèles : ${e}`);
                 if (!this._destroyed)
                     fill([current]);
             });
@@ -1107,7 +1107,7 @@ class AssistantCard {
                 this._renderAssistant(entry, {final: true});
                 this._setStatus('Arrêté');
             } else {
-                console.warn(`[sidepanel] assistant : ${e}`);
+                console.warn(`[yuzu] assistant : ${e}`);
                 if (!stripThink(entry.text))
                     entry.text = `Erreur : ${e.message ?? e}`;
                 this._renderAssistant(entry, {final: true});
@@ -1335,7 +1335,7 @@ class AssistantCard {
                 Gio.Subprocess.new(argv, Gio.SubprocessFlags.NONE);
                 return true;
             } catch (e) {
-                console.warn(`[sidepanel] assistant : lancement de ${name} : ${e}`);
+                console.warn(`[yuzu] assistant : lancement de ${name} : ${e}`);
             }
         }
         return false;
@@ -1358,7 +1358,7 @@ class AssistantCard {
             if (execute)
                 this._timer(160, () => tap([Clutter.KEY_Return]));
         } catch (e) {
-            console.warn(`[sidepanel] assistant : clavier virtuel : ${e}`);
+            console.warn(`[yuzu] assistant : clavier virtuel : ${e}`);
             this._setStatus('Collage automatique impossible : Ctrl+Maj+V dans le terminal', true);
         }
     }

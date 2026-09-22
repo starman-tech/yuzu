@@ -12,7 +12,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-UUID="sidepanel@fgaudioso.dev"
+UUID="yuzu-plus@starman-tech.github.io"
 RUN="$ROOT/.run"
 SANDBOX="$RUN/sandbox"
 

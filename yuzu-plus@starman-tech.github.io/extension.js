@@ -6,12 +6,12 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as MessageTray from 'resource:///org/gnome/shell/ui/messageTray.js';
 
 import {KeepAwake} from './lib/keepAwake.js';
-import {SidePanel} from './lib/panel.js';
+import {YuzuPanel} from './lib/panel.js';
 // #if full
 import {SmartRewrite} from './lib/rewrite.js';
 // #endif
 
-export default class SidePanelExtension extends Extension {
+export default class YuzuExtension extends Extension {
     enable() {
         this._settings = this.getSettings();
         this._keepAwake = new KeepAwake(this._settings);
@@ -41,24 +41,24 @@ export default class SidePanelExtension extends Extension {
         const openModules = () => {
             this._settings.set_string('prefs-page', 'modules');
             Promise.resolve(this.openPreferences())
-                .catch(e => console.error(`[sidepanel] ouverture des préférences : ${e}`));
+                .catch(e => console.error(`[yuzu] ouverture des préférences : ${e}`));
         };
         try {
             const source = new MessageTray.Source({
-                title: 'Side Panel',
+                title: 'Yuzu',
                 iconName: 'sidebar-show-right-symbolic',
             });
             Main.messageTray.add(source);
             const notification = new MessageTray.Notification({
                 source,
-                title: 'Side Panel est installé',
+                title: 'Yuzu est installé',
                 body: 'Survole le bord droit de l\'écran ou appuie sur Super+P. '
                     + 'Choisis ensuite les modules à afficher.',
             });
             notification.addAction('Choisir les modules', openModules);
             source.addNotification(notification);
         } catch (e) {
-            console.warn(`[sidepanel] notification de bienvenue : ${e}`);
+            console.warn(`[yuzu] notification de bienvenue : ${e}`);
         }
     }
 
@@ -78,7 +78,7 @@ export default class SidePanelExtension extends Extension {
             this._panel?.destroy();
             this._panel = null;
         } else {
-            this._panel ??= new SidePanel(this);
+            this._panel ??= new YuzuPanel(this);
         }
         // #if full
         this._syncRewrite();

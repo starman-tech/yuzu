@@ -28,8 +28,7 @@
  *     des VRAIES séries de prix plutôt que des chemins figés du HTML.
  *
  * Mise à l'échelle : k pour la proportion du design (maquette à 380px),
- * s pour le HiDPI — voir SKILL.md du projet, section « deux facteurs
- * d'échelle ».
+ * s pour le HiDPI (voir l'en-tête de player.js).
  */
 
 import Cairo from 'cairo';
@@ -51,7 +50,7 @@ const NEWS_ROTATE_MS = 3500;
 
 /* User-Agent obligatoire : Yahoo rejette les requêtes sans en-tête
  * navigateur reconnaissable. */
-const YAHOO_HEADERS = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) sidepanel/2.0'};
+const YAHOO_HEADERS = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) yuzu/6'};
 
 /* hausse = lime (accent de la palette), baisse = corail */
 
@@ -203,7 +202,6 @@ class MarketChart extends St.DrawingArea {
 
 class MarketCard {
     constructor(ctx) {
-        this._settings = ctx.settings;
         /* largeur distribuée par le panneau : lui seul connaît la place
          * réellement disponible (padding + barre de défilement) */
         this._moduleWidth = ctx.moduleWidth;
@@ -232,8 +230,7 @@ class MarketCard {
 
     _build() {
         const s = scaleFactor();
-        const logicalWidth = this._moduleWidth
-            ?? this._settings.get_int('player-width');
+        const logicalWidth = this._moduleWidth;
         const k = logicalWidth / DESIGN_WIDTH;
         const px = v => Math.max(1, Math.round(v * k));
         const jsx = v => Math.max(1, Math.round(v * k * s));
@@ -685,7 +682,7 @@ class MarketCard {
             this._cache[token][timeframe] = entry;
         } catch (e) {
             if (!this._destroyed)   // annulée par destroy() : rien à signaler
-                console.warn(`[sidepanel] market ${token}/${timeframe} : ${e}`);
+                console.warn(`[yuzu] market ${token}/${timeframe} : ${e}`);
         } finally {
             this._loading = false;
             if (gen === this._fetchGen && !this._destroyed)
@@ -791,7 +788,7 @@ class MarketCard {
             /* carte détruite : la requête a été annulée, rien à afficher */
             if (this._destroyed)
                 return;
-            console.warn(`[sidepanel] actualités indisponibles (${token}) : ${e}`);
+            console.warn(`[yuzu] actualités indisponibles (${token}) : ${e}`);
             if (gen === this._newsGen && !this._newsCache[token])
                 this._showNewsError();
         }

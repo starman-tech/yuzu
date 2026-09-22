@@ -3,7 +3,7 @@
  *
  * 100 % local : aucune télémétrie, aucun serveur. Le temps est mesuré en
  * écoutant `notify::focus-window` sur `global.display`, et stocké dans un
- * fichier JSON sous ~/.config/sidepanel/.
+ * fichier JSON sous ~/.config/yuzu/.
  *
  * Trois écarts assumés par rapport au CSS de référence, chacun imposé par
  * une limite de St (le moteur de style de GNOME Shell) :
@@ -98,7 +98,6 @@ function todayKey() {
 
 class TrackerCard {
     constructor(ctx) {
-        this._settings = ctx.settings;
         /* largeur distribuée par le panneau : lui seul connaît la place
          * réellement disponible (padding + barre de défilement) */
         this._moduleWidth = ctx.moduleWidth;
@@ -125,8 +124,7 @@ class TrackerCard {
 
     _build() {
         const s = scaleFactor();
-        const logicalWidth = this._moduleWidth
-            ?? this._settings.get_int('player-width');
+        const logicalWidth = this._moduleWidth;
         const k = logicalWidth / DESIGN_WIDTH;
         const px = v => Math.max(1, Math.round(v * k));
         const jsx = v => Math.max(1, Math.round(v * k * s));
@@ -713,7 +711,7 @@ class TrackerCard {
                 JSON.stringify({day: this._day, apps, history}, null, 2));
             this._dirty = false;
         } catch (e) {
-            console.error(`[sidepanel] sauvegarde du suivi : ${e}`);
+            console.error(`[yuzu] sauvegarde du suivi : ${e}`);
         }
     }
 

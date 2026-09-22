@@ -6,7 +6,7 @@
  *   2. prévisions : api.open-meteo.com/v1/forecast — conditions actuelles
  *      + 5 jours (min/max, code météo WMO)
  *
- * La dernière réponse est mise en cache dans ~/.cache/sidepanel/weather.json
+ * La dernière réponse est mise en cache dans ~/.cache/yuzu/weather.json
  * pour un affichage instantané à l'ouverture ; rafraîchi toutes les 15 min
  * panneau ouvert, et dès que la ville change dans les préférences.
  */
@@ -59,7 +59,7 @@ class WeatherCard {
         this._timer = 0;
         this._gen = 0;
         this._destroyed = false;
-        this._cacheFile = `${ensureDir(`${GLib.get_user_cache_dir()}/sidepanel`)}/weather.json`;
+        this._cacheFile = `${ensureDir(`${GLib.get_user_cache_dir()}/yuzu`)}/weather.json`;
 
         this._build();
         this._loadCache();
@@ -236,7 +236,7 @@ class WeatherCard {
             this._render(model);
         } catch (e) {
             if (!this._destroyed)   // annulée par destroy() : rien à signaler
-                console.warn(`[sidepanel] météo : ${e}`);
+                console.warn(`[yuzu] météo : ${e}`);
             if (gen === this._gen && !this._destroyed) {
                 this._statusLabel.text = 'hors ligne';
                 if (this._descLabel.text === 'Chargement…')

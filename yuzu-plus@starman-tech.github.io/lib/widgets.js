@@ -77,67 +77,6 @@ function wirePress(button, target, {pressScale = 0.86} = {}) {
 
 /* ------------------------------------------------------ bouton générique */
 
-export function makeButton({
-    icon = null, gicon = null, label = null,
-    size = 32, iconSize = 14, variant = 'ghost',
-    tooltip = null, onClick = () => {},
-}) {
-    const classes = {
-        accent: 'sp-btn sp-btn-accent',
-        flat: 'sp-btn sp-btn-flat',
-        'pill-solid': 'sp-pill-solid',
-        'play-square': 'sp-play-square',
-        'icon-btn': 'sp-iconbtn',
-    };
-    const s = scaleFactor();
-    const button = new St.Button({
-        style_class: classes[variant] ?? 'sp-btn',
-        can_focus: true,
-        x_align: Clutter.ActorAlign.CENTER,
-        y_align: Clutter.ActorAlign.CENTER,
-    });
-    button.set_pivot_point(0.5, 0.5);
-
-    let child = null;
-    if (icon || gicon) {
-        child = new St.Icon({icon_size: iconSize});
-        if (gicon)
-            child.gicon = gicon;
-        else
-            child.icon_name = icon;
-        child.set_pivot_point(0.5, 0.5);
-        button.set_child(child);
-        wirePress(button, child);
-    } else if (label) {
-        button.set_label(label);
-    }
-
-    if (size > 0)
-        button.set_size(size * s, size * s);
-    if (tooltip)
-        button.set_accessible_name(tooltip);
-
-    button.connect('clicked', () => onClick(button));
-    button.spSetActive = active => {
-        if (active)
-            button.add_style_class_name('sp-checked');
-        else
-            button.remove_style_class_name('sp-checked');
-    };
-    button.spSetIcon = name => {
-        if (child instanceof St.Icon) {
-            child.gicon = null;
-            child.icon_name = name;
-        }
-    };
-    button.spSetGIcon = gi => {
-        if (child instanceof St.Icon)
-            child.gicon = gi;
-    };
-    button.spSetTheme = () => {};
-    return button;
-}
-
 /* --------------------------------------------- bouton vectoriel animé
  *
  * motion :

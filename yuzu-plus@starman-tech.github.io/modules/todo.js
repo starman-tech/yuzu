@@ -27,7 +27,7 @@
  *     modal, GNOME n'envoie AUCUNE frappe au shell et le champ restait
  *     inutilisable.
  *
- * Persistance : ~/.config/sidepanel/todos.json, comme les autres
+ * Persistance : ~/.config/yuzu/todos.json, comme les autres
  * modules du projet.
  */
 
@@ -632,7 +632,7 @@ class TodoCard {
             configDir();
             GLib.file_set_contents(this._file, JSON.stringify(this._tasks, null, 2));
         } catch (e) {
-            console.warn(`[sidepanel] todo : enregistrement impossible — ${e}`);
+            console.warn(`[yuzu] todo : enregistrement impossible — ${e}`);
         }
     }
 

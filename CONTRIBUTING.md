@@ -7,14 +7,14 @@ welcome. Issues and pull requests can be written in English or French.
 
 | You want to… | Repository |
 |---|---|
-| Add a card anyone can install | [sidepanel-modules](https://github.com/starman-tech/sidepanel-modules) — see its CONTRIBUTING |
+| Add a card anyone can install | [yuzu-modules](https://github.com/starman-tech/yuzu-modules) — see its CONTRIBUTING |
 | Fix the panel, a built-in module, the preferences, the installer | this one |
 
 ## Set up
 
 ```bash
-git clone https://github.com/starman-tech/sidepanel
-cd sidepanel
+git clone https://github.com/starman-tech/yuzu
+cd yuzu
 tools/nested.sh          # nested GNOME Shell running your working copy
 ```
 
@@ -52,7 +52,7 @@ disables and re-enables the extension, and fails if the log gained any JS or
 St/GLib critical error. What it cannot check, test by hand in the nested
 shell when your change touches it:
 
-- the preferences (`gnome-extensions prefs sidepanel@fgaudioso.dev` from a
+- the preferences (`gnome-extensions prefs yuzu-plus@starman-tech.github.io` from a
   terminal pointed at the nested bus, or the settings button of the panel);
 - installing, updating and removing a catalog module;
 - typing in a text field (to-do, quick note): keys must reach the panel;
@@ -82,18 +82,18 @@ shell when your change touches it:
 
 The interface is only in French for now. Strings are not yet wrapped in
 `gettext`; that is the first step, and a welcome pull request. The
-`gettext-domain` in `metadata.json` is already `sidepanel@fgaudioso.dev`.
+`gettext-domain` in `metadata.json` is already `yuzu-plus@starman-tech.github.io`.
 
 ## The extensions.gnome.org edition
 
-`tools/build.sh --ego` builds `dist/ego/sidepanel@starman-tech.github.io.zip`
+`tools/build.sh --ego` builds `dist/ego/yuzu@starman-tech.github.io.zip`
 from the same source, through `tools/edition.py`:
 
 - lines between `// #if full` and `// #endif` (or `<!-- #if full -->` in the
   schema) are removed; lines of an `// #else` branch are written commented
   with `//: ` so the source stays valid, and are uncommented;
 - `modules/assistant.js`, `lib/rewrite.js` and `lib/catalog.js` are dropped;
-- the community modules (`../sidepanel-modules`, or `SIDEPANEL_MODULES=…`) are
+- the community modules (`../yuzu-modules`, or `YUZU_MODULES=…`) are
   copied into `modules/community/` and become built-in modules, off by default;
 - long design comments are trimmed, `metadata.json` gets the EGO UUID.
 
@@ -103,8 +103,9 @@ reads the clipboard must stay inside `#if full`. Test the EGO zip with
 
 ## Releases
 
-1. Bump `version` and `version-name` in `sidepanel@fgaudioso.dev/metadata.json`,
+1. Bump `version` and `version-name` in `yuzu-plus@starman-tech.github.io/metadata.json`,
    and add an entry to `CHANGELOG.md`.
-2. Commit, then tag: `git tag v5.1 && git push --tags`.
-3. The *Release* workflow builds the zip with `tools/build.sh` and attaches it
-   to a GitHub release; `install.sh` always installs the latest release.
+2. Commit, then tag: `git tag v6.1 && git push origin v6.1` (the tag must equal `version-name`).
+3. The *Release* workflow builds both zips (`tools/build.sh` and `--ego`) and
+   attaches them to a GitHub release; `install.sh` always installs the latest
+   GitHub-edition zip. Upload the EGO zip on extensions.gnome.org by hand.

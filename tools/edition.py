@@ -24,7 +24,7 @@ import re
 import shutil
 import sys
 
-EGO_UUID = 'sidepanel@starman-tech.github.io'
+EGO_UUID = 'yuzu@starman-tech.github.io'
 EGO_REMOVE = ['modules/assistant.js', 'lib/rewrite.js', 'lib/catalog.js']
 BUILTIN_EXCLUDED_FROM_EGO = {'assistant'}
 
@@ -65,6 +65,11 @@ def preprocess_js(text, edition, where):
 
 def preprocess_xml(text, edition):
     block = re.compile(r'[ \t]*<!-- #if full -->\n([\s\S]*?)[ \t]*<!-- #endif -->\n')
+    return block.sub(lambda m: m.group(1) if edition == 'full' else '', text)
+
+
+def preprocess_css(text, edition):
+    block = re.compile(r'/\* #if full \*/\n([\s\S]*?)/\* #endif \*/\n')
     return block.sub(lambda m: m.group(1) if edition == 'full' else '', text)
 
 
@@ -209,11 +214,13 @@ def main():
         js.write_text(text)
     for xml in stage.rglob('*.xml'):
         xml.write_text(preprocess_xml(xml.read_text(), edition))
+    for css in stage.rglob('*.css'):
+        css.write_text(preprocess_css(css.read_text(), edition))
 
     if edition == 'ego':
         catalog = sys.argv[3] if len(sys.argv) > 3 else None
         if not catalog:
-            sys.exit('édition ego : chemin du dépôt sidepanel-modules requis')
+            sys.exit('édition ego : chemin du dépôt yuzu-modules requis')
         ids = bundle_modules(stage, catalog)
         ego_metadata(stage)
         print(f'modules embarqués : {", ".join(ids)}')

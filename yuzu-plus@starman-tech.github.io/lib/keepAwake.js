@@ -22,8 +22,8 @@
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 
-const APP_ID = 'sidepanel@fgaudioso.dev';
-const REASON = 'Side Panel : rester allumé capot fermé';
+const APP_ID = 'yuzu-plus@starman-tech.github.io';
+const REASON = 'Yuzu : rester allumé capot fermé';
 const GSM_INHIBIT_SUSPEND = 4;
 
 function inhibitLid() {
@@ -33,7 +33,7 @@ function inhibitLid() {
             '/org/freedesktop/login1',
             'org.freedesktop.login1.Manager',
             'Inhibit',
-            new GLib.Variant('(ssss)', ['handle-lid-switch', 'Side Panel', REASON, 'block']),
+            new GLib.Variant('(ssss)', ['handle-lid-switch', 'Yuzu', REASON, 'block']),
             new GLib.VariantType('(h)'),
             Gio.DBusCallFlags.NONE, -1, null, null,
             (connection, result) => {
@@ -77,7 +77,7 @@ function releaseLid(fd) {
     try {
         GLib.close(fd);
     } catch (e) {
-        console.warn(`[sidepanel] libération du verrou capot : ${e}`);
+        console.warn(`[yuzu] libération du verrou capot : ${e}`);
     }
 }
 
@@ -93,7 +93,7 @@ function releaseSession(cookie) {
             try {
                 connection.call_finish(result);
             } catch (e) {
-                console.warn(`[sidepanel] libération du verrou de veille : ${e}`);
+                console.warn(`[yuzu] libération du verrou de veille : ${e}`);
             }
         });
 }
@@ -134,7 +134,7 @@ export class KeepAwake {
             else
                 this._lidFd = lid.value;
         } else {
-            console.error(`[sidepanel] verrou capot (logind) : ${lid.reason}`);
+            console.error(`[yuzu] verrou capot (logind) : ${lid.reason}`);
         }
 
         if (session.status === 'fulfilled') {
@@ -143,7 +143,7 @@ export class KeepAwake {
             else
                 this._cookie = session.value;
         } else {
-            console.error(`[sidepanel] verrou de veille (gnome-session) : ${session.reason}`);
+            console.error(`[yuzu] verrou de veille (gnome-session) : ${session.reason}`);
         }
     }
 

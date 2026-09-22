@@ -1,4 +1,4 @@
-# Side Panel — guide pour les IA de code
+# Yuzu — guide pour les IA de code
 
 Ce fichier décrit **où se trouve chaque chose et ce qu'elle fait** dans
 l'extension. Lis-le avant de toucher au code. Il est écrit pour un agent qui
@@ -11,7 +11,7 @@ connaît JavaScript mais pas forcément GNOME Shell / GJS / St / Clutter.
 - **Catalogue** : `lib/catalog.js`, partagé shell/préférences (Gio, GLib,
   Soup seulement). Téléchargement vérifié par SHA-256, fichier installé sous
   `<id>-<version>.js` (le cache d'`import()` de GJS est par URI), index dans
-  `~/.config/sidepanel/catalog-installed.json`. Les préférences écrivent
+  `~/.config/yuzu/catalog-installed.json`. Les préférences écrivent
   `module-paths` ; le panneau écoute cette clé et importe à chaud
   (`_loadImportedModules({show: true})`).
 - **Choix des modules** : `builtins.json` (lu par `prefs.js` et `install.sh`),
@@ -27,7 +27,7 @@ connaît JavaScript mais pas forcément GNOME Shell / GJS / St / Clutter.
 - **API des modules** : `ctx.api` (1), `ctx.palette`, `ctx.style`,
   `ctx.utils` — voir `docs/MODULES.md`. On n'y retire jamais rien.
 - **Opt-in** : assistant IA désactivé par défaut, réécriture Ctrl+M derrière
-  `rewrite-enabled`. Données dans `~/.config/sidepanel` (migration depuis
+  `rewrite-enabled`. Données dans `~/.config/yuzu` (migration depuis
   `mon-extension` dans `configDir()`).
 - **Hors scène** : ne jamais lire `width` d'un acteur St qui n'est pas sur la
   scène (St-CRITICAL) ; tester `get_stage()` d'abord. Après un `await`,
@@ -35,13 +35,13 @@ connaît JavaScript mais pas forcément GNOME Shell / GJS / St / Clutter.
 
 ## 1. Ce qu'est ce projet
 
-- **Extension GNOME Shell 46 à 49** (X11 ou Wayland), UUID `sidepanel@fgaudioso.dev`.
+- **Extension GNOME Shell 46 à 49** (X11 ou Wayland), UUID `yuzu-plus@starman-tech.github.io`.
 - Un **panneau flottant** qui sort du bord droit de l'écran (survol du bord ou
   `Super+P`), rendu « verre dépoli » avec fond animé peint en Cairo.
 - Le panneau est une **pile de cartes**. Chaque carte est un **module** :
   9 modules intégrés (`modules/`, métadonnées dans `builtins.json`) + les
   modules du catalogue communautaire ou n'importe quel `.js` déposé dans
-  `~/.config/sidepanel/modules/`, chargés à chaud.
+  `~/.config/yuzu/modules/`, chargés à chaud.
 - Langage : **GJS** (JavaScript ESM tournant dans le processus de gnome-shell).
   Pas de npm ni de bundler. Vérifications : `tools/lint.sh` (statique) et
   `tools/smoke.sh` (parcours dans le shell imbriqué de `tools/nested.sh`).
@@ -65,9 +65,9 @@ Deux processus distincts, à ne pas mélanger :
 ## 2. Carte des fichiers
 
 ```
-sidepanel@fgaudioso.dev/
+yuzu-plus@starman-tech.github.io/
 ├── metadata.json          identité, versions shell, session-modes (user + unlock-dialog)
-├── extension.js           point d'entrée : enable()/disable(), crée KeepAwake + SidePanel
+├── extension.js           point d'entrée : enable()/disable(), crée KeepAwake + YuzuPanel
 ├── prefs.js               fenêtre de préférences (Adw/Gtk4), 4 pages
 ├── stylesheet.css         classes St (boutons, en-tête, pastilles) — transitions natives
 ├── schemas/…gschema.xml   toutes les clés GSettings (voir §7)
@@ -75,12 +75,12 @@ sidepanel@fgaudioso.dev/
 ├── check-imports.py       lint maison : identifiant utilisé sans import (cause d'ERROR)
 ├── README.md              doc utilisateur (partiellement obsolète, voir §9)
 ├── lib/
-│   ├── panel.js           ★ LE CŒUR : classe SidePanel (UI, géométrie, ouverture, modules, drag, grab clavier, raccourci)
+│   ├── panel.js           ★ LE CŒUR : classe YuzuPanel (UI, géométrie, ouverture, modules, drag, grab clavier, raccourci)
 │   ├── card.js            ModuleCard : enveloppe d'un module + barre d'édition (monter/descendre/ranger/retirer/glisser)
 │   ├── registry.js        ModuleRegistry : catalogue des modules intégrés + import() dynamique des scripts utilisateur
 │   ├── glass.js           LiquidBackground (fond animé Cairo, 4 formes) + applyBackdropBlur (Shell.BlurEffect)
 │   ├── theme.js           THEMES (4 thèmes = jetons), SHAPES, fabriques de style CSS
-│   ├── widgets.js         fabriques de boutons : makeAddButton, makeActionButton, makeVectorButton, makePill, popIn, makeButton
+│   ├── widgets.js         fabriques de boutons : makeAddButton, makeActionButton, makeVectorButton, makePill, popIn
 │   ├── vectorIcons.js     icônes SVG inline → fichiers .svg cachés, recolorables (vectorIcon / setVectorIcon)
 │   ├── keepAwake.js       KeepAwake : verrous logind + gnome-session « rester allumé capot fermé »
 │   ├── rewrite.js         SmartRewrite : raccourci global (Ctrl+M), lit la sélection, l'envoie à Groq selon le préfixe (~ # > ! ? $ =), colle le résultat à la place (clavier virtuel), bandeau `.sp-toast`
@@ -112,7 +112,7 @@ gnome-shell active l'extension
   └─ extension.js  enable()
        ├─ new KeepAwake(settings)          lib/keepAwake.js  (indépendant du panneau, survit à l'écran verrouillé)
        └─ _syncPanel()                     écoute Main.sessionMode 'updated'
-            └─ new SidePanel(extension)    lib/panel.js      (détruit quand l'écran est verrouillé, recréé après)
+            └─ new YuzuPanel(extension)    lib/panel.js      (détruit quand l'écran est verrouillé, recréé après)
                  ├─ new ModuleRegistry()   lib/registry.js   (4 intégrés enregistrés dans le constructeur)
                  ├─ _build()               crée _edge (bande de survol) + _actor (racine verre) et les ajoute au chrome
                  │    ├─ LiquidBackground  lib/glass.js
@@ -138,7 +138,7 @@ gnome-shell active l'extension
 
 **Réactions aux réglages** (`panel.js` l.21-29) :
 - `RESTYLE` = theme, backdrop-blur, bg-* ⇒ `_applyTheme()` seulement (pas de reconstruction).
-- `STRUCTURAL` = panel-width, panel-margin, edge-width, module-order, module-hidden, player-width, player-height, card-spacing, **view-mode** ⇒ `_rebuild()` = `_teardownUI()` + `_build()` (tous les modules sont **détruits et reconstruits**).
+- `STRUCTURAL` = panel-width, panel-margin, edge-width, module-order, module-hidden, card-spacing, **view-mode** ⇒ `_rebuild()` = `_teardownUI()` + `_build()` (tous les modules sont **détruits et reconstruits**).
 
 **Cycle de vie d'un module** : `build(ctx)` une fois par (re)construction → `setTheme(t)` à chaque changement de thème → `onOpen()` / `onClose()` à chaque ouverture/fermeture du panneau → `destroy()` lors d'un `_rebuild()` ou de la désactivation. Les modules **doivent** arrêter leurs timers dans `onClose()` et tout libérer dans `destroy()` (D-Bus, Soup, signaux `global.display`).
 
@@ -149,7 +149,7 @@ gnome-shell active l'extension
 ### `extension.js` (40 l.)
 `enable()` crée `KeepAwake` puis surveille `Main.sessionMode` : panneau détruit quand `isLocked`, recréé sinon. `metadata.json` déclare `unlock-dialog` précisément pour que le verrou « rester allumé » ne tombe pas au verrouillage.
 
-### `lib/panel.js` — classe `SidePanel`
+### `lib/panel.js` — classe `YuzuPanel`
 | Zone | Méthodes | Rôle |
 |---|---|---|
 | Constantes l.21-40 | `STRUCTURAL`, `RESTYLE`, `PADDING_LEFT=14`, `PADDING_RIGHT=4`, `SCROLLBAR_WIDTH=10`, `VERTICAL_BREATHING=28` | source unique des marges internes ; `moduleWidth()` en dépend |
@@ -171,7 +171,7 @@ Signaux globaux écoutés : `Main.layoutManager 'monitors-changed'`, `global.dis
 Vertical : `[_editBar (cachée)] + [_body]`. `_body` est un BinLayout : `_shadow` (bloc plein translaté de `shadowOffset`) sous `_frame` (contour `strokeWidth` + fond `cardTint`) qui contient `instance.actor`. La carte pose `margin_right`/`margin_bottom` = décalage pour réserver l'ombre dans la colonne. L'ombre est un acteur et non un `box-shadow` (un box-shadow sur un acteur à image de fond est peint en rectangle). Signaux : `move-requested(±1)`, `stow-requested`, `remove-requested`, `drag-begin`. « Retirer » seulement pour les modules non intégrés.
 ### `lib/registry.js` — `ModuleRegistry`
 - `BUILTINS = [player, tracker, market, todo]` (ordre d'import, pas ordre d'affichage).
-- `userModuleDir()` = `~/.config/sidepanel/modules/` (créé si absent).
+- `userModuleDir()` = `~/.config/yuzu/modules/` (créé si absent).
 - `listFiles()` : `.js` du dossier. `loadFile(path)` : `await import('file://…')`, valide `{id, build}`, refuse un id déjà pris par un intégré. `loadAll(paths)` ignore les fichiers disparus.
 - Descripteur enregistré = `{...mod, builtin: bool, source: 'intégré' | chemin}`.
 
@@ -187,12 +187,12 @@ Vertical : `[_editBar (cachée)] + [_body]`. `_body` est un BinLayout : `_shadow
 Fabriques : `panelStyle(t)`, `cardStyle(t, {padding, radius, shadow})`, `labelStyle(t, {size, color})`. Pour les modules intégrés : **`MODULE`** (surface, stroke, inset, text, accent, positive/negative, `radius` = 4 px logiques avant facteur k, `strokeWidth` = 2 pour les sous-blocs). Les modules ne dessinent **plus** leur contour externe : c'est `ModuleCard` qui pose cadre et ombre.
 ### `lib/widgets.js`
 Couleurs d'icônes : `beigeDim` au repos, `beige` au survol/focus, `navyDeep` sur bloc orange actif. Courbes : `EASE_OUT_EXPO` pour ce qui arrive, `EASE_OUT_BACK` pour les accents, `EASE_OUT_QUAD` pour les appuis. **`wirePush(button)`** : à l'appui le bouton entier se translate de `PUSH_PX=3` px pendant que le CSS `:active` supprime son ombre dure ⇒ il « s'enfonce » dans son ombre (pastilles, lignes, ＋, boutons d'en-tête). `wirePress()` enfonce en plus l'icône.
-- `makeAddButton` (`spSetOpen` ⇒ `.sp-open`, bloc orange, croix à 45°), `makeActionButton` (`spSetActive` ⇒ `.is-pinned`), `makeVectorButton` (barre d'édition, `motion`), `makePill(text, theme, onClick, {variant: ghost|accent|danger})`, `makeRow(text, onClick, {mono})`, `popIn` (glisse depuis la droite), `slideIn`/`slideOut` (volets), `makeButton` (compat, inutilisé).
+- `makeAddButton` (`spSetOpen` ⇒ `.sp-open`, bloc orange, croix à 45°), `makeActionButton` (`spSetActive` ⇒ `.is-pinned`), `makeVectorButton` (barre d'édition, `motion`), `makePill(text, theme, onClick, {variant: ghost|accent|danger})`, `makeRow(text, onClick, {mono})`, `popIn` (glisse depuis la droite), `slideIn`/`slideOut` (volets).
 ### `lib/vectorIcons.js`
-`ICONS` (tracés de la maquette : `hdr-*`, `plus-circle`, `skip-*`, `podcast`, `repeat`, `headphones`, `pause-bars`, `play-triangle`, `spotify-glyph`) + `OWN_ICONS` (jeu maison `ui-*` : plus, edit, pin, settings, clock, chart, refresh, lock, code, globe, terminal, palette, window, chat, browser, up, down, stow, close, grip, todo, trash). Chaque couple (nom, couleur) est écrit une fois dans `~/.cache/sidepanel/vector-icons/<md5>.svg` puis chargé en `Gio.FileIcon`. API : `vectorIcon(name, hex, size)` → `St.Icon` ; `setVectorIcon(icon, name, hex)` recolore. Une icône inconnue **lève** une exception (module en erreur).
+`ICONS` (tracés de la maquette : `hdr-*`, `plus-circle`, `skip-*`, `podcast`, `repeat`, `headphones`, `pause-bars`, `play-triangle`, `spotify-glyph`) + `OWN_ICONS` (jeu maison `ui-*` : plus, edit, pin, settings, clock, chart, refresh, lock, code, globe, terminal, palette, window, chat, browser, up, down, stow, close, grip, todo, trash). Chaque couple (nom, couleur) est écrit une fois dans `~/.cache/yuzu/vector-icons/<md5>.svg` puis chargé en `Gio.FileIcon`. API : `vectorIcon(name, hex, size)` → `St.Icon` ; `setVectorIcon(icon, name, hex)` recolore. Une icône inconnue **lève** une exception (module en erreur).
 
 ### `lib/keepAwake.js` — `KeepAwake`
-Suit la clé `keep-awake`. `_acquire()` prend en parallèle : logind `Inhibit('handle-lid-switch', …, 'block')` (fd gardé ouvert) + gnome-session `Inhibit(flag SUSPEND=4)` (cookie). `_release()` ferme le fd et `Uninhibit`. Compteur `_generation` pour ignorer une réponse arrivée après désactivation. Vérif : `systemd-inhibit --list | grep -i "side panel"`.
+Suit la clé `keep-awake`. `_acquire()` prend en parallèle : logind `Inhibit('handle-lid-switch', …, 'block')` (fd gardé ouvert) + gnome-session `Inhibit(flag SUSPEND=4)` (cookie). `_release()` ferme le fd et `Uninhibit`. Compteur `_generation` pour ignorer une réponse arrivée après désactivation. Vérif : `systemd-inhibit --list | grep -i yuzu`.
 
 ### `lib/rewrite.js` — `SmartRewrite`
 Créé par `extension.js` à côté de `KeepAwake` (indépendant du panneau). `Main.wm.addKeybinding('rewrite-shortcut')`. Flux : lecture de la sélection PRIMARY (repli CLIPBOARD) → `detectMode` sur le premier caractère (`MODES` : fix, improve `~`, instruct `#`, translate `>xx`, summarize `!`, answer `?` (ajoute sous la question), shell `$`, compute `=`) → POST Groq non-flux (modèle `ai-model`, `reasoning_format: 'hidden'`, retiré si 400) → `stripResult` (balises, tirets longs) → CLIPBOARD + Ctrl+V par `Clutter.VirtualInputDevice` (Ctrl+Maj+V si la fenêtre est un terminal) → restauration du presse-papiers précédent après 1,5 s. **Piège mortel** : `St.Clipboard.get_text()` appelé dans le rappel d'un autre `get_text()` fait segfaulter gnome-shell ; chaque lecture part d'un `GLib.idle_add` (`_readClipboard`). 429 ⇒ attente `retry-after` (2 essais).
@@ -204,14 +204,14 @@ Créé par `extension.js` à côté de `KeepAwake` (indépendant du panneau). `M
 - Maquette 480×270, `k = moduleWidth/480`. Acteur racine `St.Widget` BinLayout à **taille fixe** (`clip_to_allocation`).
 - Couches : `_art` (pochette en `background-image`) → `_scrim` (dégradé sombre horizontal) → `root` (BoxLayout : logo app + pilule sortie audio / titre+artiste + gros bouton lecture / favori + `ProgressLine` + suivant + cast + répétition) → `_deviceOverlay` (sélecteur de sortie).
 - D-Bus : `_watchBus()` s'abonne à `NameOwnerChanged` (namespace `org.mpris.MediaPlayer2`) + `ListNames`. Par lecteur : `PlayerProxy` (Metadata, PlaybackStatus, Position, Shuffle, LoopStatus, Seeked) + `AppProxy` (Identity, DesktopEntry ⇒ icône réelle via `Shell.AppSystem`). `_pick()` choisit le lecteur : Playing=4, Paused=2, +8 si le nom contient `preferred-player`.
-- `_sync()` met à jour titre/artiste/longueur/icône lecture/loop, lance `_loadArt(url)` (cache `~/.cache/sidepanel/art/<md5>.img`, `file://` direct, http via Soup) ⇒ `_setArtFile()` ⇒ `extractPastelAccent` ⇒ `_applyAccent()` recolore pilule, bouton lecture, barre et icônes du bas.
+- `_sync()` met à jour titre/artiste/longueur/icône lecture/loop, lance `_loadArt(url)` (cache `~/.cache/yuzu/art/<md5>.img`, `file://` direct, http via Soup) ⇒ `_setArtFile()` ⇒ `extractPastelAccent` ⇒ `_applyAccent()` recolore pilule, bouton lecture, barre et icônes du bas.
 - Position : timer 1 s (+1 000 000 µs) et vraie lecture D-Bus toutes les 5 s. Seek par clic/glisser sur `ProgressLine` (`SetPosition(trackid, µs)`).
 - Sortie audio : `import('gi://Gvc')` dynamique, `Gvc.MixerControl` ; `_setDefaultSink` Gvc puis repli `pactl`.
-- Favoris : `Set` de clés `titre—artiste` dans `~/.config/sidepanel/player-favorites.json`.
+- Favoris : `Set` de clés `titre—artiste` dans `~/.config/yuzu/player-favorites.json`.
 
 ### `modules/tracker.js` — `TrackerCard`
 - Maquette 380 px. Écoute `global.display 'notify::focus-window'` et `win 'notify::title'` (changement d'onglet). Temps mesuré par **horodatage** (`GLib.get_monotonic_time`) à chaque changement, pas par tick ⇒ ne compte pas la veille ; ignoré si inactivité > `IDLE_THRESHOLD=180` s (`get_core_idle_monitor`).
-- Données `_apps: Map<appId, {name, seconds, titles:{titre: secondes}}>`, journée courante seulement (`_rolloverIfNeeded`). Sauvegarde `~/.config/sidepanel/timetracker.json` toutes les 30 s si dirty, à la fermeture, à la destruction.
+- Données `_apps: Map<appId, {name, seconds, titles:{titre: secondes}}>`, journée courante seulement (`_rolloverIfNeeded`). Sauvegarde `~/.config/yuzu/timetracker.json` toutes les 30 s si dirty, à la fermeture, à la destruction.
 - Affichage : total du jour, 3 lignes (`VISIBLE_ROWS`) + « Voir plus », barre = part de l'app dans le total, sous-éléments (3 titres de fenêtre) dépliés au survol (hauteur animée). Couleur/icône par `SIGNATURES` (regex sur appId/nom) sinon `FALLBACKS` par hash.
 - Le timer de rafraîchissement (1 s) ne tourne que panneau ouvert.
 
@@ -225,7 +225,7 @@ Créé par `extension.js` à côté de `KeepAwake` (indépendant du panneau). `M
 
 ### `modules/todo.js` — `TodoCard`, `TodoRow`, `TodoCheckbox`
 - Maquette 390 px. `St.Entry` + bouton « ＋ » dégradé bleu (pivote au survol). **Clic sur l'entrée ⇒ `panel.enterEditMode(entry.clutter_text)`**, `onClose` ⇒ `panel.leaveEditMode()`.
-- `_tasks: [{id, text, completed, time}]` dans `~/.config/sidepanel/todos.json`. Tri : actives d'abord, puis terminées de la plus récente à la plus ancienne. Au-delà de `MAX_COMPLETED=2` terminées, la plus ancienne disparaît (`row.disappear()`).
+- `_tasks: [{id, text, completed, time}]` dans `~/.config/yuzu/todos.json`. Tri : actives d'abord, puis terminées de la plus récente à la plus ancienne. Au-delà de `MAX_COMPLETED=2` terminées, la plus ancienne disparaît (`row.disappear()`).
 - Liste dans un `St.ScrollView` dont la hauteur = contenu plafonné à 300 px logiques (`_updateListHeight` ⇒ `panel.requestRelayout()`).
 - `TodoCheckbox` : rebond en 4 temps + onde blanche (`_shine`). Tout en `ease()`.
 
@@ -269,7 +269,7 @@ Conventions observées dans les 4 intégrés (à reproduire) :
 - Largeur : `logicalWidth = ctx.moduleWidth`, `k = logicalWidth / DESIGN_WIDTH`.
 - Tous les callbacks asynchrones (timers, D-Bus, Soup) testent `this._destroyed` avant de toucher aux acteurs.
 - Un compteur de génération (`_fetchGen`, `_newsGen`, `_generation`) invalide les réponses arrivant après un changement d'état.
-- Persistance : `~/.config/sidepanel/<nom>.json` via `GLib.file_set_contents` (+ `ensureDir`).
+- Persistance : `~/.config/yuzu/<nom>.json` via `GLib.file_set_contents` (+ `ensureDir`).
 - Une carte dont la hauteur change appelle `ctx.panel.requestRelayout()`.
 - Un module avec `St.Entry` appelle `ctx.panel.enterEditMode(entry.clutter_text)` au clic.
 - Les modules importés sont chargés par `import()` : un fichier utilisateur peut donc importer `gi://…` mais **pas** `../lib/…` (chemin relatif à `~/.config`, pas à l'extension). Il reçoit ce dont il a besoin via `ctx`.
@@ -295,7 +295,7 @@ Conventions observées dans les 4 intégrés (à reproduire) :
 12. **Imports** : tout identifiant utilisé doit être importé (un oubli met l'extension en ERROR au chargement, sans message clair). Lancer `python3 check-imports.py` après chaque modification.
 13. `prefs.js` tourne dans un **autre processus** : aucun `St`, `Clutter`, `Shell`, `Main`. Ne partager que `lib/theme.js`.
 14. **Fichier vs `background-image`** : mettre une image en `background-image` sur un acteur libre fait remonter la taille de l'image comme taille minimale ⇒ le lecteur verrouille sa taille (`width/height` fixes + `clip_to_allocation`).
-15. Les logs : `console.log/warn/error` préfixés `[sidepanel]`, lus avec `journalctl -b -o cat /usr/bin/gnome-shell | grep -i sidepanel`.
+15. Les logs : `console.log/warn/error` préfixés `[yuzu]`, lus avec `journalctl -b -o cat /usr/bin/gnome-shell | grep -i yuzu`.
 16. **Largeur naturelle et `letter-spacing`** : St mesure un label SANS le letter-spacing que Pango applique ensuite ; un label laissé à sa largeur naturelle avec `ellipsize: END` s'ellipse alors d'un pixel (« LECTEU… »). Pas de letter-spacing sur un label non étiré, ou lui donner une largeur.
 17. **Défilement (Marquee)** : `St.Label` ellipse par défaut ; pour faire défiler un titre, mettre `ellipsize: NONE` ET placer le label dans une boîte dont `vfunc_get_preferred_width` renvoie `[0, 0]` (voir `ClipBox` dans player.js), sinon la boîte réclame la largeur du texte et rien n'est découpé.
 18. **Centrer un texte dans un label étiré** : `set_line_alignment(CENTER)` n'agit que si la mise en page Pango a une largeur, ce qu'un `ellipsize` impose (voir les cases du calendrier).
@@ -321,8 +321,6 @@ Conventions observées dans les 4 intégrés (à reproduire) :
 | `panel-max-height` | i `820` | plafond de hauteur | lu à `_relayout()` |
 | `edge-width` | i `8` | zone de survol | STRUCTURAL |
 | `card-spacing` | i `12` | spacing de `_stack` | STRUCTURAL |
-| `player-width` | i `240` | repli si `ctx.moduleWidth` absent (le lecteur suit un ratio 480:300) | STRUCTURAL |
-| `player-height` | i `225` | **plus lu nulle part** (hauteur dérivée du ratio 480:270) | STRUCTURAL |
 | `hide-delay` | i `420` ms | délai avant fermeture | lu à chaque `_scheduleHide` |
 | `animation-duration` | i `460` ms | ouverture (fermeture = 55 %) | lu à chaque `open` |
 | `bounce` | b `true` | EASE_OUT_BACK vs EASE_OUT_EXPO | lu à chaque `open` |
@@ -340,7 +338,7 @@ Conventions observées dans les 4 intégrés (à reproduire) :
 | `module-hidden` | as `[]` | rangés dans la bibliothèque | STRUCTURAL |
 | `module-paths` | as `[]` | scripts importés (chemins absolus) | lu au démarrage |
 
-Lecture rapide en shell : `gsettings --schemadir ~/.local/share/gnome-shell/extensions/sidepanel@fgaudioso.dev/schemas get org.gnome.shell.extensions.sidepanel module-order`.
+Lecture rapide en shell : `gsettings --schemadir ~/.local/share/gnome-shell/extensions/yuzu-plus@starman-tech.github.io/schemas get org.gnome.shell.extensions.yuzu module-order`.
 
 ---
 
@@ -348,64 +346,60 @@ Lecture rapide en shell : `gsettings --schemadir ~/.local/share/gnome-shell/exte
 
 | Chemin | Écrit par | Contenu |
 |---|---|---|
-| `~/.config/sidepanel/modules/*.js` | utilisateur / `_adoptFile` / `_copyExamples` | scripts de modules importables |
-| `~/.config/sidepanel/player-favorites.json` | player | tableau de clés `titre—artiste` |
-| `~/.config/sidepanel/timetracker.json` | tracker | `{day, apps:{id:{name, seconds, titles}}}` (journée courante) |
-| `~/.config/sidepanel/todos.json` | todo | `[{id, text, completed, time}]` |
-| `~/.config/sidepanel/quicknote.json` | examples/quicknote | `{text}` |
-| `~/.cache/sidepanel/weather.json` | weather | dernière réponse Open-Meteo |
-| `~/.cache/sidepanel/art/<md5>.img` | player | pochettes téléchargées |
-| `~/.cache/sidepanel/vector-icons/<md5>.svg` | vectorIcons | une icône par (nom, couleur) |
+| `~/.config/yuzu/modules/*.js` | utilisateur / `_adoptFile` / `_copyExamples` | scripts de modules importables |
+| `~/.config/yuzu/player-favorites.json` | player | tableau de clés `titre—artiste` |
+| `~/.config/yuzu/timetracker.json` | tracker | `{day, apps:{id:{name, seconds, titles}}}` (journée courante) |
+| `~/.config/yuzu/todos.json` | todo | `[{id, text, completed, time}]` |
+| `~/.config/yuzu/quicknote.json` | examples/quicknote | `{text}` |
+| `~/.cache/yuzu/weather.json` | weather | dernière réponse Open-Meteo |
+| `~/.cache/yuzu/art/<md5>.img` | player | pochettes téléchargées |
+| `~/.cache/yuzu/vector-icons/<md5>.svg` | vectorIcons | une icône par (nom, couleur) |
 
 Réseau sortant : Yahoo Finance (`query1.finance.yahoo.com`), Google News RSS (`news.google.com`), Open-Meteo (`geocoding-api.open-meteo.com`, `api.open-meteo.com`), Groq (`api.groq.com`, assistant), Bing RSS (`www.bing.com`, assistant en mode web), URLs `mpris:artUrl` http(s) des lecteurs. Rien d'autre.
 
 ---
 
-## 9. Dettes et incohérences connues (état au 2026-09-15, après la refonte « brutal pixel »)
+## 9. Dettes et incohérences connues (état au 2026-09-22, version 6.0)
 
-À connaître avant de « corriger » quelque chose, ou à traiter si on approfondit :
-
-- **README obsolète** : titre « v2.4 » (dossier `sidepanel-v4.2`, `metadata.version=2`), dit « un seul module fourni (le lecteur) » alors qu'il y en a 4, dit 30 fps alors que `FRAME_MS=50` (20 fps), décrit une pilule « périphérique audio » sans mentionner le sélecteur de sortie.
 - `prefs.js` borne `panel-width` à 280 min alors que le schéma autorise 220.
-- `player-height` (schéma + prefs description) n'est plus lu ; la hauteur découle de `player-width` × 270/480.
-- `descriptor.icon` n'est affiché qu'en mode applis (tuiles) ; la bibliothèque et le picker restent textuels. Un nom `ui-*`/`hdr-*` passe par `vectorIcon`, tout autre nom par `St.Icon` (icône du thème GNOME).
-- Code mort : `makeButton` (fabrique de compatibilité, jamais appelée), `formatUs`, `lerp` ; bloc « compat » en fin de `stylesheet.css` (classes que seul `makeButton` produit).
-- `modules/market.js` l.30 renvoie à un `SKILL.md` qui n'existe pas (la règle « deux facteurs d'échelle » est en tête de `player.js` et en §6 ici).
-- Les modules intégrés ignorent le thème (`setTheme` vide) : ils sont dessinés sur `MODULE`/`PALETTE` (nuit/beige/orange) quel que soit le thème choisi ; `brutal-light` ne change donc que le panneau autour.
+- `descriptor.icon` n'est affiché qu'en mode applis (tuiles) ; la bibliothèque et le picker restent textuels.
 - Le `box-shadow` dur du panneau (`theme.shadow`) est peint par St hors de l'allocation. Si des artefacts apparaissent, mettre `shadow: null` dans le thème.
-- Les anciens thèmes verre (`liquid`, `mercury`, `aurora`, `obsidian`, `neo`) ont été retirés ; un réglage `theme` obsolète retombe sur `brutal` via `getTheme()`.
-- Pas de tests ; la seule vérification automatique est `check-imports.py`.
-- Pas de dépôt git dans ce dossier.
+- Un réglage `theme` obsolète (anciens thèmes verre) retombe sur `brutal` via `getTheme()`.
+- Interface uniquement en français : les chaînes ne passent pas encore par gettext.
+- Écran de verrouillage : le panneau est détruit et reconstruit, les modules perdent leur état en mémoire (ceux qui comptent sauvegardent sur disque).
 
 ---
 
 ## 10. Boucle de développement
 
 ```bash
-./install.sh                                  # rsync + glib-compile-schemas
-# X11 : Alt+F2 → r → Entrée   |   Wayland : se déconnecter/reconnecter
-gnome-extensions enable sidepanel@fgaudioso.dev
-gnome-extensions info sidepanel@fgaudioso.dev  # état / erreur
-journalctl -f -o cat /usr/bin/gnome-shell | grep -i sidepanel
-gnome-extensions prefs sidepanel@fgaudioso.dev
-python3 check-imports.py                       # avant chaque rechargement
+tools/nested.sh [--reset] [--ego]   # shell imbriqué isolé (.run/sandbox), version complète ou EGO
+tools/smoke.sh                      # parcours automatique, échoue si le journal contient une erreur
+tools/panel.sh 'p.open()'           # JS avec p = YuzuPanel dans le shell imbriqué
+tools/ev.sh 'code'                  # JS brut (org.gnome.Shell.Eval, --unsafe-mode)
+tools/shot.sh nom                   # capture → tools/shots/nom.png
+tools/fake-mpris.py .run/nested.bus # faux lecteur Spotify sur le bus imbriqué
+tools/lint.sh                       # syntaxe, imports manquants, schéma, metadata
+tools/build.sh [--ego]              # zips dans dist/ et dist/ego/
+./install.sh --keep                 # installer la copie de travail dans la vraie session
 ```
 
-Un changement dans `schemas/*.xml` exige la recompilation (`install.sh` le fait). Un changement dans `lib/`, `modules/`, `stylesheet.css` exige le rechargement du shell ; un script dans `~/.config/sidepanel/modules/` se recharge seulement en le retirant puis en le réimportant via ＋ (les modules `import()`és sont mis en cache par GJS jusqu'au redémarrage du shell).
+Journal du shell imbriqué : `.run/nested.log`. Tuer ce shell avec
+`kill $(pgrep -f "^gnome-shell --nested")` : le motif ancré évite de tuer la
+commande bash qui le contient. Les applications lancées par D-Bus (dont les
+préférences) s'ouvrent dans le shell imbriqué grâce à
+`dbus-update-activation-environment`, fait par `nested.sh`.
 
-**Tester EN VOYANT le rendu (obligatoire avant de livrer un changement visuel)** : `tools/nested-unsafe.sh` lance un shell imbriqué en `--unsafe-mode` et écrit l'adresse de son bus dans `.run/nested.bus` ; ensuite `tools/panel.sh 'p.open(); p.setPinned(true);'` pilote le panneau (`p` = SidePanel), `tools/ev.sh 'code'` évalue du JS, `tools/shot.sh nom` capture un PNG (`shots/nom.png`) à regarder avec l'outil Read. Séquence type : ouvrir, capturer, `p._openTile(id, p._tiles.find(t => t._spId === id))`, capturer à 100/250/400 ms, `p._closeFocus()`. `tools/fake-mpris.py .run/nested.bus [image]`. Le lanceur retrouve seul le fichier `.mutter-Xwaylandauth.*` courant ; `tools/nested.bus` est un lien vers `.run/nested.bus` (ne pas le supprimer après le lancement). Tuer l'ancien shell avec `pkill -f "^gnome-shell --nested"` (motif ancré, sinon la commande bash qui le contient se tue elle-même). En mode applis, atteindre un module par `p._gridCards.get(id)._instance` après `_openTile` ; en mode pile, `p._cards[i]._instance` publie un faux lecteur `org.mpris.MediaPlayer2.spotify` sur le bus imbriqué (le vrai Spotify est sur le bus principal, invisible ici) : pochette, titre long, position qui avance, réponses à PlayPause/Next/Shuffle/LoopStatus/SetPosition. Les horodatages des captures sont décalés d'environ 100 ms par la latence D-Bus.
-
-**Tester sans se déconnecter (Wayland)** : `../nested-shell.sh` (à côté du dossier de l'extension) lance un GNOME Shell imbriqué dans une fenêtre, avec un environnement nettoyé (le snap VS Code casse `gnome-shell --nested`). Il lit le même dconf : l'extension y est active si elle l'est dans la session principale. Rediriger sa sortie vers un fichier et y chercher `sidepanel`, `JS ERROR`, `St-WARNING`. Bruit connu : `TodoRow … not in the stage`, GTop, meta-barrier, Astra Monitor.
+Un changement dans `schemas/*.xml` exige la recompilation (`nested.sh` et
+`install.sh` la font). Un module `import()`é depuis `~/.config/yuzu/modules/`
+reste en cache GJS jusqu'au redémarrage du shell : le catalogue installe donc
+chaque version sous un nouveau nom de fichier.
 
 ---
 
-## 11. Pistes d'approfondissement (pour la suite)
+## 11. Pistes d'approfondissement
 
-Non faites, listées pour orienter le travail à venir sans rien décider :
-
-- Faire suivre le thème aux modules intégrés (utiliser `ctx.theme` / `setTheme`).
+- Traduction : passer les chaînes par gettext (`gettext-domain` déjà déclaré).
 - Afficher `descriptor.icon` dans la bibliothèque et le picker.
-- Nettoyer §9 (README, reset, code/CSS mort, `player-height`).
-- Écran de verrouillage : le panneau est détruit et reconstruit, donc les modules perdent leur état en mémoire (le tracker sauvegarde avant).
-- Tests : un harnais minimal pourrait charger `lib/theme.js`, `utils.js` (parties sans GI) sous `gjs -m`.
-- Extraire une API stable pour les modules tiers (versionner `ctx`).
+- Conserver l'état des modules à travers le verrouillage de l'écran.
+- Tests unitaires des parties sans GI (`lib/theme.js`, `lib/catalog.js` : validation, comparaison de versions) sous `gjs -m`.

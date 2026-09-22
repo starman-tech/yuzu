@@ -35,7 +35,7 @@ import {
 const MODULE_API = 1;
 
 const STRUCTURAL = ['panel-width', 'panel-margin', 'edge-width', 'module-order',
-    'module-hidden', 'player-width', 'player-height', 'card-spacing', 'view-mode'];
+    'module-hidden', 'card-spacing', 'view-mode'];
 
 /* Mode « applis » : colonnes de la grille de tuiles et taille du bloc d'icône. */
 const GRID_COLUMNS = 3;
@@ -61,12 +61,12 @@ const VERTICAL_BREATHING = 28;
 
 /* En-tête : « + » (24) · titre · N boutons d'action. Les valeurs suivent
  * le CSS (.sp-header-bar : 14 px de chaque côté ; titre 14 px, espacé de
- * 2 px). TITLE_WIDTH est une borne haute du titre « PANNEAU ». */
+ * 2 px). TITLE_WIDTH est une borne haute du titre « YUZU ». */
 const HEADER_PADDING = 28;
 const HEADER_ADD = 24;
 const HEADER_LEFT_GAP = 12;
 const HEADER_ACTION_GAP = 4;
-const TITLE_WIDTH = 86;
+const TITLE_WIDTH = 56;
 
 /** Taille des boutons et présence du titre pour une largeur de panneau :
  * d'abord réduire les boutons (jusqu'à 28 px), puis masquer le titre, et
@@ -82,7 +82,7 @@ export function headerLayout(panelWidth, strokeWidth, buttons) {
     return {size: clamp(size, 22, 32), showTitle: false};
 }
 
-export class SidePanel {
+export class YuzuPanel {
     constructor(extension) {
         this._extension = extension;
         this._settings = extension.getSettings();
@@ -209,7 +209,7 @@ export class SidePanel {
         this._backButton.hide();
 
         this._titleLabel = new St.Label({
-            text: 'PANNEAU',
+            text: 'YUZU',
             style_class: 'sp-header-name',
             y_align: Clutter.ActorAlign.CENTER,
         });
@@ -619,7 +619,7 @@ export class SidePanel {
                 throw new Error('build() doit renvoyer un objet avec une propriété actor');
             card = new ModuleCard(descriptor, instance, this._theme);
         } catch (e) {
-            console.error(`[sidepanel] module ${id} : ${e}`);
+            console.error(`[yuzu] module ${id} : ${e}`);
             card = this._errorCard(id, e, () => this._closeFocus());
             card.moduleId = id;
         }
@@ -747,7 +747,7 @@ export class SidePanel {
         this._backButton.hide();
         this._addButton.show();
         popIn(this._addButton, 0, {distance: -8, duration: 400});
-        this._titleLabel.text = 'PANNEAU';
+        this._titleLabel.text = 'YUZU';
         popIn(this._titleLabel, 60, {distance: 10, duration: 440});
     }
 
@@ -802,14 +802,8 @@ export class SidePanel {
     }
     // #endif
 
-    /** Largeur réellement disponible pour une carte, en px LOGIQUES.
-     *
-     * Les modules lisaient jusqu'ici `player-width` directement dans les
-     * réglages, sans rapport avec la place réelle : les cartes en
-     * x_expand débordaient sous la barre de défilement, et la carte du
-     * lecteur (largeur fixe) n'était pas alignée sur les autres. Le
-     * panneau est le seul à connaître cette valeur, c'est donc lui qui la
-     * calcule et la distribue via ctx. */
+    /** Largeur disponible pour une carte, en px logiques : le panneau est
+     * seul à la connaître et la distribue aux modules via ctx.moduleWidth. */
     moduleWidth() {
         const panelWidth = this._settings.get_int('panel-width');
         /* ModuleCard réserve l'ombre dure (marge droite) et pose un contour
@@ -918,7 +912,7 @@ export class SidePanel {
                 this._stack.add_child(card);
                 this._cards.push(card);
             } catch (e) {
-                console.error(`[sidepanel] module ${id} : ${e}`);
+                console.error(`[yuzu] module ${id} : ${e}`);
                 this._stack.add_child(this._errorCard(id, e));
             }
         }
@@ -1259,9 +1253,9 @@ export class SidePanel {
     _openPreferences() {
         try {
             Promise.resolve(this._extension.openPreferences())
-                .catch(e => console.error(`[sidepanel] ouverture des préférences : ${e}`));
+                .catch(e => console.error(`[yuzu] ouverture des préférences : ${e}`));
         } catch (e) {
-            console.error(`[sidepanel] ouverture des préférences : ${e}`);
+            console.error(`[yuzu] ouverture des préférences : ${e}`);
         }
     }
 

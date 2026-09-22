@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <title>Yuzu</title>
+  <!-- ombre dure, comme les cartes du panneau -->
+  <circle cx="138" cy="150" r="86" fill="#1E223D"/>
+  <!-- le fruit -->
+  <circle cx="124" cy="136" r="86" fill="#FFB81C" stroke="#1E223D" stroke-width="10"/>
+  <!-- reflet -->
+  <path d="M78 116c6-24 24-42 48-48" fill="none" stroke="#FFE39A" stroke-width="12" stroke-linecap="round"/>
+  <!-- pores de l'écorce -->
+  <g fill="#E89400">
+    <circle cx="150" cy="120" r="5"/><circle cx="170" cy="150" r="5"/>
+    <circle cx="140" cy="176" r="5"/><circle cx="104" cy="166" r="5"/>
+    <circle cx="176" cy="112" r="4"/><circle cx="120" cy="196" r="4"/>
+  </g>
+  <!-- pédoncule et feuille -->
+  <path d="M124 52V34" stroke="#1E223D" stroke-width="10" stroke-linecap="round"/>
+  <path d="M128 40c20-26 58-30 78-16-14 26-50 36-78 16z" fill="#F54F1B" stroke="#1E223D" stroke-width="10" stroke-linejoin="round"/>
+</svg>

@@ -18,9 +18,9 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install -y libglib2.0-bin
       - name: Version du tag = version de metadata.json
         run: |
-          meta="v$(python3 -c 'import json; print(json.load(open("sidepanel@fgaudioso.dev/metadata.json"))["version-name"])')"
+          meta="v$(python3 -c 'import json; print(json.load(open("yuzu-plus@starman-tech.github.io/metadata.json"))["version-name"])')"
           [ "$meta" = "$GITHUB_REF_NAME" ] || { echo "tag $GITHUB_REF_NAME ≠ metadata $meta"; exit 1; }
-      - run: git clone --depth 1 https://github.com/starman-tech/sidepanel-modules ../sidepanel-modules
+      - run: git clone --depth 1 https://github.com/starman-tech/yuzu-modules ../yuzu-modules
       - run: tools/build.sh && tools/build.sh --ego
       - name: Notes de version
         run: |

@@ -1,10 +1,30 @@
 # Changelog
 
+## 6.0 — Side Panel devient Yuzu
+
+### Changé
+- Nouveau nom : **Yuzu**. Identifiants `yuzu@starman-tech.github.io`
+  (extensions.gnome.org) et `yuzu-plus@starman-tech.github.io` (GitHub),
+  schéma `org.gnome.shell.extensions.yuzu`, données dans `~/.config/yuzu`.
+- Dépôts : `starman-tech/yuzu` et `starman-tech/yuzu-modules` (les anciennes
+  adresses redirigent).
+- L'en-tête du panneau affiche « YUZU ».
+
+### Migration
+- Les données de `~/.config/sidepanel` (et `~/.config/mon-extension`) sont
+  déplacées automatiquement au premier lancement.
+- `install.sh` retire l'ancienne extension `sidepanel@fgaudioso.dev` et
+  reprend ses réglages.
+
+### Retiré
+- Code mort : fabrique `makeButton` et son CSS, réglages `player-width` /
+  `player-height`, icônes inutilisées.
+
 ## 5.1
 
 ### Nouveau
 - **Édition extensions.gnome.org** (`tools/build.sh --ego`, UUID
-  `sidepanel@starman-tech.github.io`) : les modules du catalogue sont
+  `yuzu@starman-tech.github.io`) : les modules du catalogue sont
   embarqués et s'activent dans les préférences ; pas de chargement à chaud,
   pas d'assistant ni de réécriture.
 - `tools/nested.sh --ego` pour tester cette édition.
@@ -40,7 +60,7 @@
   fumée sans erreur dans le journal).
 
 ### Changé
-- Les données passent de `~/.config/mon-extension` à `~/.config/sidepanel`
+- Les données passent de `~/.config/mon-extension` à `~/.config/yuzu`
   (migration automatique, sans perte).
 - L'assistant IA et la réécriture de la sélection sont désactivés par
   défaut : ils envoient des données à Groq.

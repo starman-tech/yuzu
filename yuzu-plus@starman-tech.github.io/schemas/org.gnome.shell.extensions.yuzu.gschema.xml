@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schemalist gettext-domain="sidepanel">
-  <schema id="org.gnome.shell.extensions.sidepanel" path="/org/gnome/shell/extensions/sidepanel/">
+<schemalist gettext-domain="yuzu-plus@starman-tech.github.io">
+  <schema id="org.gnome.shell.extensions.yuzu" path="/org/gnome/shell/extensions/yuzu/">
 
     <key name="theme" type="s">
       <default>'brutal'</default>
@@ -32,18 +32,6 @@
     <key name="bg-colors" type="as">
       <default>[]</default>
       <summary>Couleurs du fond en hexadécimal (vide = couleurs du thème)</summary>
-    </key>
-
-    <key name="player-width" type="i">
-      <default>240</default>
-      <range min="160" max="640"/>
-      <summary>Largeur de la carte (la hauteur en découle, ratio 480:270)</summary>
-    </key>
-
-    <key name="player-height" type="i">
-      <default>225</default>
-      <range min="180" max="400"/>
-      <summary>Hauteur fixe de la carte du lecteur</summary>
     </key>
 
     <key name="card-spacing" type="i">
@@ -178,7 +166,7 @@
 
     <!-- #if full -->
     <key name="catalog-url" type="s">
-      <default>'https://raw.githubusercontent.com/starman-tech/sidepanel-modules/main/catalog.json'</default>
+      <default>'https://raw.githubusercontent.com/starman-tech/yuzu-modules/main/catalog.json'</default>
       <summary>Catalogue de modules communautaires</summary>
       <description>Fichier JSON listant les modules installables en un clic. Peut pointer vers un fork ou un catalogue privé.</description>
     </key>
