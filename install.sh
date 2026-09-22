@@ -234,15 +234,25 @@ if gnome-extensions list 2>/dev/null | grep -qx "$UUID"; then
     bold "✓ Yuzu $VERSION installé et activé."
     echo "  Si une version précédente tournait, recharge GNOME Shell pour appliquer la mise à jour :"
 else
-    bold "✓ Yuzu $VERSION installé."
-    echo "  GNOME Shell doit redécouvrir ses extensions avant de pouvoir l'activer :"
+    # Le shell ne découvre les nouvelles extensions qu'au démarrage : on
+    # l'inscrit directement dans la liste des extensions activées, qu'il
+    # chargera à l'ouverture de la prochaine session.
+    python3 - "$UUID" <<'PY2' || warn "activation automatique impossible : gnome-extensions enable $UUID après reconnexion"
+import ast, subprocess, sys
+uuid = sys.argv[1]
+raw = subprocess.check_output(['gsettings', 'get', 'org.gnome.shell', 'enabled-extensions'], text=True)
+current = ast.literal_eval(raw.replace('@as ', ''))
+if uuid not in current:
+    subprocess.check_call(['gsettings', 'set', 'org.gnome.shell', 'enabled-extensions', str(current + [uuid])])
+PY2
+    bold "✓ Yuzu $VERSION installé, et activé pour ta prochaine session."
+    echo "  GNOME Shell ne découvre les nouvelles extensions qu'au démarrage :"
 fi
 if [ "${XDG_SESSION_TYPE:-}" = x11 ]; then
     echo "    Alt+F2, tape r, Entrée"
 else
     echo "    ferme ta session puis rouvre-la (Wayland ne permet pas de recharger le shell à chaud)"
 fi
-echo "  puis, si ce n'est pas déjà fait :  gnome-extensions enable $UUID"
 echo
 echo "  Ouvrir / fermer : survole le bord droit de l'écran, ou Super+P"
 echo "  Préférences     : gnome-extensions prefs $UUID"
